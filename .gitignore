@@ -1,0 +1,19 @@
+# old files
+/recycle_bin/
+
+# databases containing private data
+*.db
+
+# backups containing parts of the databases mentioned above
+/backups/
+*.backup
+
+# private login data
+/gunicorn.conf.py
+/resources/key.bin
+
+# not usable on other computers
+/venv/
+/.idea/
+/__pycache__/
+*.pyc

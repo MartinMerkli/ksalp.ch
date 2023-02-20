@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/stylesheets/{{ theme }}.css">
+    <script src="/src/scripts/navbar.js"></script>
+</head>
+<body onload="{% block onload %}{% endblock %}">
+<div class="header">
+    <p>&ensp;<a href="#" class="navbar-link" onclick="navbar_menu()">&#9776;</a>
+    <span>ksalp.ch</span></p>
+</div>
+<div class="navbar" id="navbar">
+    <p class="navbar-mobile">&ensp;<a href="#" class="navbar-link">&#9587;</a>&emsp;
+        {% if is_signed_in %}
+            <small>Angemeldet als <i>{{ account }}</i></small>
+        {% else %}
+            <small>Nicht angemeldet</small>
+        {% endif %}
+    </p>
+    <p class="navbar-desktop">ksalp.ch</p>
+    <ul class="navbar-list">
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/" class="navbar-link">Startseite</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/neuigkeiten" class="navbar-link">Neuigkeiten</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span></li>
+        {% if is_signed_in %}
+            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/abmelden" class="navbar-link">Abmelden</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/einstellungen" class="navbar-link">Einstellungen</a></li>
+        {% else %}
+            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/anmelden" class="navbar-link">Anmelden</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/registrieren" class="navbar-link">Registrieren</a></li>
+        {% endif %}
+        <li class="navbar-element"><span id="navbar-prefix_about">&#129170; </span><a href="#" class="navbar-link" onclick="navbar_button('about')">Über</a></li>
+        <li><ul class="navbar-second-list" id="navbar-list_about" style="display: none">
+            <li class="navbar-second-element"><a href="/über/team" class="navbar-second-link">das Team</a></li>
+            <li class="navbar-second-element"><a href="/über/kontakt" class="navbar-second-link">Kontakt</a></li>
+            <li class="navbar-second-element"><a href="/über/quellcode" class="navbar-second-link">Quellcode</a></li>
+            <li class="navbar-second-element"><a href="/über/finanzen" class="navbar-second-link">Finanzen</a></li>
+            <li class="navbar-second-element"><a href="/impressum" class="navbar-second-link">Impressum</a></li>
+            <li class="navbar-second-element"><a href="/datenschutz" class="navbar-second-link">Datenschutz</a></li>
+            <li class="navbar-second-element"><a href="/agb" class="navbar-second-link">AGB</a></li>
+        </ul></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span></li>
+    </ul>
+</div>
+<div class="account">
+    {% if is_signed_in %}
+        <p>Angemeldet als <i>{{ account }}</i></p>
+    {% else %}
+        <p>Nicht angemeldet</p>
+    {% endif %}
+</div>
+<div class="container">
+    <div class="main">
+        {% block main %}{% endblock %}
+    </div>
+    <div class="footer">
+        <p class="footer-text"><span class="footer-inner">site design © 2023 Martin Merkli &emsp;|&emsp;<a href="/" class="footer-link">Impressum</a>&emsp;|&emsp;<a href="/" class="footer-link">Datenschutz</a>&emsp;|&emsp;<a href="/" class="footer-link">Allgemeine Geschäftsbedingungen</a></span></p>
+    </div>
+</div>
+</body>
+</html>

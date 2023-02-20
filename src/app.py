@@ -7,7 +7,7 @@
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime
-from flask import Flask, g
+from flask import Flask, g, make_response, request, send_from_directory
 from hashlib import pbkdf2_hmac
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
@@ -15,6 +15,7 @@ from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
 from os import environ, urandom
 from os.path import exists, join
 from random import uniform
+from resources.themes import THEMES as _THEMES
 from sqlite3 import connect as sqlite_connect
 from time import sleep
 
@@ -200,6 +201,39 @@ def hash_password(password, salt):
     return urlsafe_b64encode(pbkdf2_hmac('sha3_512', urlsafe_b64decode(environ['HASH_PEPPER_1']) + password.encode() +
                                          urlsafe_b64decode(environ['HASH_PEPPER_2']), urlsafe_b64decode(salt),
                                          int(environ['HASH_ITERATIONS']))).decode()
+
+
+########################################################################################################################
+# RESOURCE FILES
+########################################################################################################################
+
+
+@app.route('/src/<path:file>', methods=['GET'])
+def route_src(file):
+    return send_from_directory(join(app.root_path, 'static'), file)
+
+
+@app.route('/src/<theme>', methods=['GET'])
+def route_stylesheets(theme):
+    theme = theme.replace('.css', '')
+    if theme not in _THEMES:
+        theme = 'Hell [Standard]'
+    with open(join(app.root_path, 'resources', 'stylesheet.css'), 'r', encoding='utf-8') as f:
+        template = f.read()
+    for i in _THEMES[theme]:
+        template = template.replace(f"§{i}§", _THEMES[theme][i])
+    set_cookie = False
+    try:
+        scale = int(request.cookies.get('scale-factor', '1.0'))
+    except ValueError:
+        scale = 1.0
+        set_cookie = True
+    template = template.replace('§scale§', str(scale))
+    resp = make_response(template, 200)
+    resp.mimetype = 'text/css'
+    if set_cookie:
+        resp.set_cookie('scale-factor', str(scale))
+    return resp
 
 
 ########################################################################################################################

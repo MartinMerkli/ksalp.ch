@@ -6,9 +6,9 @@
 
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from datetime import datetime
-from flask import Flask, g, make_response, request, send_from_directory
-from hashlib import pbkdf2_hmac
+from datetime import datetime, timedelta
+from flask import Flask, g, make_response, render_template, request, send_from_directory, session
+from hashlib import pbkdf2_hmac, sha256
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
@@ -18,6 +18,7 @@ from random import uniform
 from resources.themes import THEMES as _THEMES
 from sqlite3 import connect as sqlite_connect
 from time import sleep
+from httpanalyzer import FlaskRequest as AnalyzerRequest
 
 
 ########################################################################################################################
@@ -201,6 +202,57 @@ def hash_password(password, salt):
     return urlsafe_b64encode(pbkdf2_hmac('sha3_512', urlsafe_b64decode(environ['HASH_PEPPER_1']) + password.encode() +
                                          urlsafe_b64decode(environ['HASH_PEPPER_2']), urlsafe_b64decode(salt),
                                          int(environ['HASH_ITERATIONS']))).decode()
+
+
+def hash_ip(ip):
+    return urlsafe_b64encode(sha256(bytes(map(int, ip.split('.')))).digest()).decode()
+
+
+def scan_request(r):
+    ip = r.access_route[-1]
+    user_agent = r.user_agent.string
+    path = r.full_path
+    if r.remote_addr not in ['127.0.0.1', '0.0.0.0', None]:
+        access_log.info(f'{hash_ip(ip)}\t{0}\t{int(is_signed_in(r.cookies))}\t{r.method}\t{path}\t{user_agent}')
+        return 0
+    score = query_db('SELECT score FROM ipv4 WHERE address = ?', (ip,)).fetchone()
+    if score is None:
+        score = 2
+        query_db('INSERT INTO ipv4 VALUES (?, ?, ?)', (ip, 'unknown', 2))
+    else:
+        score = score[0]
+    before = score
+
+    if 0 < score < 3:
+        instance = AnalyzerRequest(r, ['controlpanel'])
+        bot_rating = instance.bot()
+        search_rating = instance.search_engine()
+        malicious_rating = instance.malicious()
+        if (bot_rating > 0.8) and (search_rating < 0.5):
+            score = min(score, 1)
+        if malicious_rating > 0.4:
+            score = min(score, 1)
+        if malicious_rating > 0.8:
+            score = min(score, 0)
+
+    if before != score:
+        query_db('UPDATE ipv4 SET score = ? WHERE address = ?', (score, ip))
+
+    access_log.info(f'{hash_ip(ip)}\t{score}\t{int(is_signed_in(r.cookies))}\t{r.method}\t{path}\t{user_agent}')
+    return score
+
+
+########################################################################################################################
+# BEFORE REQUEST
+########################################################################################################################
+
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(days=24)
+    score = scan_request(request)
+    if score == 0:
+        return render_template('_banned.html', ip=request.access_route[-1]), 403
 
 
 ########################################################################################################################

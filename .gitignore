@@ -1,5 +1,5 @@
 # old files
-/recycle_bin/
+recycle_bin/
 
 # databases containing private data
 *.db
@@ -17,3 +17,10 @@
 /.idea/
 /__pycache__/
 *.pyc
+
+# test of new features and possibilities
+tests/
+
+# log files
+*.log
+logs/

@@ -123,8 +123,8 @@ db_tables = {
         'salt TEXT',  # same as account
         'hash TEXT',  # same as account
         'newsletter INTEGER',  # same as account
-        '',  # expiry date; %Y-%m-%d_%H-%M-%S
-        'code',  # code; 8-digit number as text
+        'valid TEXT',  # expiry date; %Y-%m-%d_%H-%M-%S
+        'code TEXT',  # code; 8-digit number as text
     ],
     'used_ids': [
         'id TEXT PRIMARY KEY',  # the id; usually base64

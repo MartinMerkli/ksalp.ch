@@ -7,7 +7,7 @@
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime
-from flask import Flask
+from flask import Flask, g
 from hashlib import pbkdf2_hmac
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
@@ -68,8 +68,72 @@ request_errors_log = GetLogger('request_errors')
 ########################################################################################################################
 
 
-conn = sqlite_connect('database.db')
-db = conn.cursor()
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite_connect('database.db')
+    return db
+
+
+@app.teardown_appcontext
+def close_connection(exception):  # noqa
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+def query_db(query, args=(), one=False):
+    conn = get_db()
+    cur = conn.execute(query, args)
+    result = cur.fetchall()
+    conn.commit()
+    cur.close()
+    return (result[0] if result else None) if one else result
+
+
+db_tables = {
+    'account': [
+        'id TEXT PRIMARY KEY',  # account id; 8-digit base64
+        'name TEXT',  # name
+        'mail TEXT',  # @sluz.ch e-mail
+        'salt TEXT',  # password salt; base64-encoded
+        'hash TEXT',  # password hash; base64-encoded
+        'newsletter INTEGER',  # has agreed to receive newsletter; binary
+        'created TEXT',  # date of creation; %Y-%m-%d_%H-%M-%S
+        'theme TEXT',  # selected theme
+        'iframe INTEGER',  # wants to get iframes; binary
+        'payment TEXT',  # payment expiry date; %Y-%m-%d_%H-%M-%S
+        'banned TEXT',  # banned status; indices [_ or X]: 0: platform, 1: calendar, 2: comments, 3: uploading
+    ],
+    'ipv4': [
+        'address TEXT PRIMARY KEY',  # IPv4 address
+        'owner TEXT',  # organisation or physical location
+        'score TEXT',  # rating: 0: banned, 1: always require captcha, 2: normal, 3: cannot be banned
+    ],
+    'login': [
+        'id TEXT PRIMARY KEY',  # the id which is stored as a cookie on the browser; 43-digit base64
+        'account TEXT',  # matching account id; 8-digit base64
+        'valid TEXT',  # expiry date; %Y-%m-%d_%H-%M-%S
+        'browser TEXT',  # information about user agent
+    ],
+    'mail': [
+        'id TEXT PRIMARY KEY',  # same as account
+        'name TEXT',  # same as account
+        'mail TEXT',  # same as account
+        'salt TEXT',  # same as account
+        'hash TEXT',  # same as account
+        'newsletter INTEGER',  # same as account
+        '',  # expiry date; %Y-%m-%d_%H-%M-%S
+        'code',  # code; 8-digit number as text
+    ],
+    'used_ids': [
+        'id TEXT PRIMARY KEY',  # the id; usually base64
+        'created TEXT',  # when this id came into use; %Y-%m-%d_%H-%M-%S
+    ],
+}
+
+for _, (k, v) in enumerate(db_tables.items()):
+    query_db(f"CREATE TABLE IF NOT EXISTS {k} ({', '.join(v)})")
 
 
 ########################################################################################################################
@@ -89,20 +153,18 @@ def get_current_time():
 def rand_base64(digits):
     while True:
         n = urlsafe_b64encode(urandom(digits)).decode()[:digits]
-        result = db.execute('select * from used_ids where id=?', (n,)).fetchone()
+        result = query_db('SELECT * FROM used_ids WHERE id=?', (n,), True)
         if result is None:
-            db.execute('insert into used_ids values (?, ?)', (n, get_current_time()))
-            conn.commit()
+            query_db('INSERT INTO used_ids VALUES (?, ?)', (n, get_current_time()))
             return n
 
 
 def rand_base16(digits):
     while True:
         n = urandom(digits).hex()[:digits]
-        result = db.execute('select * from used_ids where id=?', (n,)).fetchone()
+        result = query_db('SELECT * FROM used_ids WHERE id=?', (n,), True)
         if result is None:
-            db.execute('insert into used_ids values (?, ?)', (n, get_current_time()))
-            conn.commit()
+            query_db('INSERT INTO used_ids VALUES (?, ?)', (n, get_current_time()))
             return n
 
 
@@ -117,7 +179,7 @@ def rand_salt():
 
 def is_signed_in(cookies):
     if 'id' in cookies:
-        result = db.execute('select valid from login where id = ?', (cookies['id'],)).fetchone()
+        result = query_db('SELECT valid FROM login WHERE id = ?', (cookies['id'],), True)
         if result is None:
             return False
         if result[0] >= get_current_time():
@@ -148,11 +210,6 @@ def hash_password(password, salt):
 if __name__ == '__main__':
     try:
         app.run('0.0.0.0', 8000)
-    except Exception as e:
-        print(e)
-        logging_log(LOG_ERROR, e)
-    try:
-        conn.close()
     except Exception as e:
         print(e)
         logging_log(LOG_ERROR, e)

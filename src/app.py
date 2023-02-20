@@ -5,13 +5,19 @@
 ########################################################################################################################
 
 
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from datetime import datetime
 from flask import Flask
+from hashlib import pbkdf2_hmac
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
-from os import urandom
+from os import environ, urandom
 from os.path import exists, join
+from random import uniform
 from sqlite3 import connect as sqlite_connect
+from time import sleep
+
 
 ########################################################################################################################
 # GENERAL SETUP
@@ -64,6 +70,74 @@ request_errors_log = GetLogger('request_errors')
 
 conn = sqlite_connect('database.db')
 db = conn.cursor()
+
+
+########################################################################################################################
+# DATES
+########################################################################################################################
+
+
+def get_current_time():
+    return datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+
+########################################################################################################################
+# RANDOM
+########################################################################################################################
+
+
+def rand_base64(digits):
+    while True:
+        n = urlsafe_b64encode(urandom(digits)).decode()[:digits]
+        result = db.execute('select * from used_ids where id=?', (n,)).fetchone()
+        if result is None:
+            db.execute('insert into used_ids values (?, ?)', (n, get_current_time()))
+            conn.commit()
+            return n
+
+
+def rand_base16(digits):
+    while True:
+        n = urandom(digits).hex()[:digits]
+        result = db.execute('select * from used_ids where id=?', (n,)).fetchone()
+        if result is None:
+            db.execute('insert into used_ids values (?, ?)', (n, get_current_time()))
+            conn.commit()
+            return n
+
+
+def rand_salt():
+    return urlsafe_b64encode(urandom(32)).decode()
+
+
+########################################################################################################################
+# ACCOUNT
+########################################################################################################################
+
+
+def is_signed_in(cookies):
+    if 'id' in cookies:
+        result = db.execute('select valid from login where id = ?', (cookies['id'],)).fetchone()
+        if result is None:
+            return False
+        if result[0] >= get_current_time():
+            return True
+    return False
+
+
+########################################################################################################################
+# PROTECTION
+########################################################################################################################
+
+
+def random_sleep():
+    sleep(0.1 + uniform(0.0, 0.1))
+
+
+def hash_password(password, salt):
+    return urlsafe_b64encode(pbkdf2_hmac('sha3_512', urlsafe_b64decode(environ['HASH_PEPPER_1']) + password.encode() +
+                                         urlsafe_b64decode(environ['HASH_PEPPER_2']), urlsafe_b64decode(salt),
+                                         int(environ['HASH_ITERATIONS']))).decode()
 
 
 ########################################################################################################################

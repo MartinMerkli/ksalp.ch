@@ -207,6 +207,10 @@ def account(cookies):
     return unavailable
 
 
+def is_banned(index, banned):
+    return banned[index] == 'X' or banned[0] == 'X'
+
+
 ########################################################################################################################
 # PROTECTION
 ########################################################################################################################
@@ -270,6 +274,77 @@ def form_require(keys, form):
 
 
 ########################################################################################################################
+# RETURN ERROR
+########################################################################################################################
+
+
+def error(code, event, args=None):
+    if args is None:
+        args = []
+    codes = {
+        400: 'Bad Request: Cannot process due to client error.',
+        401: 'Unauthorized: No permission',
+        402: 'Payment Required: No payment',
+        403: 'Forbidden: Request forbidden',
+        404: 'Not Found: Nothing matches the given URI',
+        405: 'Method Not Allowed: Specified method is invalid for this server.',
+        406: 'Not Acceptable: URI not available in preferred format.',
+        407: 'Proxy Authentication Required: You must authenticate with this proxy before proceeding.',
+        408: 'Request Timeout: Request timed out; try again later.',
+        409: 'Conflict: Request(s) conflict(s).',
+        410: 'Gone: URI no longer exists and has been permanently removed.',
+        411: 'Length Required: Client must specify Content-Length.',
+        412: 'Precondition Failed: Precondition in headers is false.',
+        413: 'Request Entity Too Large: Entity is too large.',
+        414: 'Request-URI Too Long: URI is too long.',
+        415: 'Unsupported Media Type: Entity body in unsupported format.',
+        416: 'Requested Range Not Satisfiable: Cannot satisfy request range.',
+        417: 'Expectation Failed: Expect condition could not be satisfied.',
+        500: 'Internal Server Error: The server has encountered a situation it does not know how to handle.',
+        501: 'Not Implemented: Server does not support this operation',
+        502: 'Bad Gateway: Invalid responses from another server/proxy.',
+        503: 'Service Unavailable: The server cannot process the request due to a high load',
+        504: 'Gateway Timeout: The gateway server did not receive a timely response',
+        505: 'HTTP Version Not Supported: Cannot fulfill request.',
+    }
+    if code in codes:
+        status = f"{code} - {codes[code]}"
+    else:
+        status = str(code)
+    title, message = '', ''
+    match event:
+        case 'banned':
+            messages = [
+                'Ihr Konto wurde vom*von der Betreiber*in gesperrt.',
+                'Der*die Betreiber*in hat festgelegt, dass Sie keine Änderungen an den Kalendern vornehmen dürfen.',
+                'Der*die Betreiber*in hat festgelegt, dass Sie keine Kommentare schreiben dürfen.',
+                'Der*die Betreiber*in hat festgelegt, dass Sie keine Dateien hochladen und keine Karteikarten '
+                'erstellen dürfen.'
+            ]
+            titles = [
+                'Konto gesperrt',
+                'Aktion verboten',
+                'Aktion verboten',
+                'Aktion verboten'
+            ]
+            if len(args) >= 1:
+                message = messages[args[0]]
+                title = titles[args[0]]
+            else:
+                message = messages[0]
+                title = titles[args[0]]
+            message += ' Für mehr Informationen können Sie den*die Betreiber*in kontaktieren.'
+        case 'form-missing':
+            title, message = 'Fehlendes Eingabefeld', 'Mindestens ein erforderliches Eingabefeld wurde nicht an den ' \
+                                                      'Server übermittelt.'
+        case 'custom':
+            title, message = args[0], args[1]
+        case '_':
+            title, message = 'Fehler', 'Ein Fehler ist aufgetreten.'
+    return render_template('_error.html', status=status, title=title, message=message), code
+
+
+########################################################################################################################
 # BEFORE REQUEST
 ########################################################################################################################
 
@@ -317,17 +392,15 @@ def route_stylesheets(theme):
 
 
 ########################################################################################################################
-# START PAGE
+# MAIN PAGES
 ########################################################################################################################
 
 
 @app.route('/', methods=['GET'])
 def root():
     signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if banned[0] == 'X':
-        return render_template('_error.html', title='Konto gesperrt', status='403 - Forbidden',
-                               message='Ihr Konto wurde vom*von der Betreiber*in gesperrt. Für mehr Informationen '
-                                       'können Sie uns kontaktieren.')
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
     search_engine = 'DuckDuckGo'
     if signed_in:
         result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
@@ -340,14 +413,10 @@ def root():
 @app.route('/search', methods=['POST'])
 def route_search():
     signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
     if not form_require(['q'], request.form):
-        return render_template('_error.html', title='Fehlendes Eingabefeld', status='400 - Bad Request',
-                               message='Mindestens ein erforderliches Eingabefeld wurde nicht an den Server '
-                                       'übermittelt.')
-    if banned[0] == 'X':
-        return render_template('_error.html', title='Konto gesperrt', status='403 - Forbidden',
-                               message='Ihr Konto wurde vom*von der Betreiber*in gesperrt. Für mehr Informationen '
-                                       'können Sie uns kontaktieren.')
+        return error(400, 'form-missing')
     search_engine = 'DuckDuckGo'
     if signed_in:
         result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)

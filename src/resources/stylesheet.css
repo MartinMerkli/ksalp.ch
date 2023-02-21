@@ -1,3 +1,4 @@
+/* _base */
 :root{
     --scale: §scale§;
     --bg: §bg§;
@@ -9,6 +10,9 @@
     --footer-fg: §footer-fg§;
     --footer-a: §footer-a§;
     --footer-a-hover: §footer-a-hover§;
+    --root-query: §root-query§;
+    --box-li-bg: §box-li-bg§;
+    --box-li-border: §box-li-border§;
 }
 body{
     font-family: Segoe UI, SegoeUI, Helvetica Neue, Helvetica, Arial, sans-serif;
@@ -118,6 +122,67 @@ body{
     background-color: var(--navbar-bg);
 }
 
+/* COMMON */
+.center{
+    text-align: center;
+}
+.box{
+    text-align: center;
+    list-style-type: none;
+}
+.box li{
+    display: inline-block;
+    background: var(--box-li-bg);
+    border: 0.1em solid var(--box-li-border);
+}
+
+/* _root */
+.-root_query{
+    outline: none;
+    font-size: 1.2em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    padding: 0.25em 0.7em;
+}
+.-root_submit{
+    font-size: 1.2em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    height: 2em;
+    width: 2em;
+}
+.-root-box li{
+    width: 8em;
+    height: 2.7em;
+    border-radius: 1em;
+}
+.-root-box a{
+    text-decoration: none;
+    color: var(--footer-a);
+}
+.-root-box a:hover {
+    color: var(--footer-a-hover);
+}
+.-root-cards li{
+    width: 8em;
+    height: 10.8em;
+    border-radius: 1em;
+}
+.-root-cards img{
+    height: 7em;
+    width: 7em;
+    margin-top: 0.5em;
+}
+.-root-cards a{
+    text-decoration: none;
+    color: var(--footer-a);
+}
+.-root-cards a:hover{
+    color: var(--footer-a-hover);
+}
+
+/* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {
     .navbar{
         display: none;

@@ -1,0 +1,51 @@
+{% extends _base.html %}
+
+{% block main %}
+    {% if signed_in %}
+        <div>
+            <h2 class="center">Willkommen zurück, <i>{{ account }}</i>!</h2>
+        </div>
+        <div>
+            <form action="/search" method="post">
+                <label for="search"></label>
+                <input class='-root_query' type="text" size="48" name="q" autocomplete="off" value="" autofocus placeholder="Im Internet mit {{ search_engine }} suchen" id="search">
+                <input class='-root_submit' type="submit" value="Search">
+            </form>
+        </div>
+        <div>
+            <ul class="box -root-box">
+                <li><a href="/neuigkeiten">Neuigkeiten</a></li>
+                <li><a href="/einstellungen">Einstellungen</a></li>
+            </ul>
+        </div>
+        <div>
+            <ul class="box -root-cards">
+                <li><a href="https://ksalpenquai.lu.ch/"><img src="https://ksalpenquai.lu.ch/android-icon-192x192.png" alt="">Kantonsschule Alpenquai Luzern</a></li>
+                <li><a href="https://outlook.office.com/mail/"><img src="https://res.cdn.office.net/assets/mail/pwa/v1/pngs/apple-touch-icon.png" alt="">@sluz E-Mail</a></li>
+                <li><a href="https://schulnetz.lu.ch/ksalp"><img src="https://schulnetz.lu.ch/_schulnetz/_schulnetzWWW_5.5.5/favicons/sn/apple-touch-icon.png" alt="">Schulnetz</a></li>
+                <li><a href="https://www.office.com/"><img src="https://res.cdn.office.net/officehub/images/content/images/favicon_m365-67350a08e8.ico" alt="">Microsoft 365</a></li>
+                <li><a href="https://ksalpenquai.lu.ch/service/so"><img src="https://ksalpenquai.lu.ch/-/media/KSAlpenquai/Bilder/service/Schuelerorganisation/SO_Logo.png" alt="">Schüler*innenorganisation</a></li>
+                <li><a href="https://www.duden.de/"><img src="https://www.duden.de/sites/default/res/D.ico" alt="">Duden</a></li>
+                <li><a href="https://www.deepl.com/translator"><img src="https://static.deepl.com/img/apple-touch-icon.png" alt="">DeepL Übersetzer</a></li>
+                <li><a href="https://www.srf.ch/"><img src="https://www.srf.ch/var/storage/assets/webpack/favicons/srf-apple-touch-icon.png" alt="">SRF News</a></li>
+            </ul>
+        </div>
+    {% else %}
+        <div>
+            <p>ksalp.ch ist eine Lernplattform für Lernende von Lernenden der Kantonsschule Alpenquai Luzern. Lernende
+                von anderen Gymnasien sind hier auch herzlich willkommen. Diese Plattform lebt von den Beiträgen der
+                Nutzenden. Da das Betreiben einer solchen Webseite viel Aufwand verursacht und auch Geld verbraucht,
+                kostet die Benutzung 3 Franken pro Jahr*.</p>
+            <p><small>*inkl. Steuern und Transaktionskosten; Gewinne werden auch an Nutzer*innen mit bemerkenswerten
+                Beiträgen ausbezahlt.</small></p>
+            <ul class="box -root-box">
+                <li><a href="/anmelden">Anmelden</a></li>
+                <li><a href="/registrieren">Registrieren</a></li>
+                <li><a href="/über/kontakt">Kontakt</a></li>
+            </ul>
+            <p><small>Mit der Benutzung dieser Webseite stimmen Sie unseren Allgemeinen Geschäftsbedingungen sowie
+                unseren Datenschutzrichtlinien zu. Da nur essenzielle Cookies zum Einsatz kommen, können Sie den
+                Einsatz von Cookies nicht ablehnen.</small></p>
+        </div>
+    {% endif %}
+{% endblock %}

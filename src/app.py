@@ -7,8 +7,9 @@
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime, timedelta
-from flask import Flask, g, make_response, render_template, request, send_from_directory, session
+from flask import Flask, g, make_response, redirect, render_template, request, send_from_directory, session
 from hashlib import pbkdf2_hmac, sha256
+from httpanalyzer import FlaskRequest as AnalyzerRequest
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
@@ -16,9 +17,10 @@ from os import environ, urandom
 from os.path import exists, join
 from random import uniform
 from resources.themes import THEMES as _THEMES
+from resources.search_engines import SEARCH_ENGINES as _SEARCH_ENGINES
 from sqlite3 import connect as sqlite_connect
 from time import sleep
-from httpanalyzer import FlaskRequest as AnalyzerRequest
+from urllib.parse import quote
 
 
 ########################################################################################################################
@@ -106,6 +108,7 @@ db_tables = {
         'iframe INTEGER',  # wants to get iframes; binary
         'payment TEXT',  # payment expiry date; %Y-%m-%d_%H-%M-%S
         'banned TEXT',  # banned status; indices [_ or X]: 0: platform, 1: calendar, 2: comments, 3: uploading
+        'search_engine TEXT',  # name of the selected search engine
     ],
     'ipv4': [
         'address TEXT PRIMARY KEY',  # IPv4 address
@@ -189,6 +192,21 @@ def is_signed_in(cookies):
     return False
 
 
+def account(cookies):
+    unavailable = (False, None, None, 'Hell [Standard]', False, '____')
+    if 'id' in cookies:
+        result1 = query_db('select valid, account from login where id = ?', (cookies['id'],), True)
+        if result1 is None:
+            return unavailable
+        if result1[0] < get_current_time():
+            return unavailable
+        result2 = query_db('select id, name, theme, payment, banned from accounts where id = ?', (result1[1],), True)
+        if result2 is None:
+            return unavailable
+        return True, result2[0], result2[1], result2[2], result2[3] >= get_current_time(), result2[4]
+    return unavailable
+
+
 ########################################################################################################################
 # PROTECTION
 ########################################################################################################################
@@ -243,13 +261,23 @@ def scan_request(r):
 
 
 ########################################################################################################################
+# CHECK FORM INFO
+########################################################################################################################
+
+
+def form_require(keys, form):
+    return all([key in form for key in keys])
+
+
+########################################################################################################################
 # BEFORE REQUEST
 ########################################################################################################################
+
 
 @app.before_request
 def before_request():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(days=24)
+    app.permanent_session_lifetime = timedelta(days=64)
     score = scan_request(request)
     if score == 0:
         return render_template('_banned.html', ip=request.access_route[-1]), 403
@@ -286,6 +314,47 @@ def route_stylesheets(theme):
     if set_cookie:
         resp.set_cookie('scale-factor', str(scale))
     return resp
+
+
+########################################################################################################################
+# START PAGE
+########################################################################################################################
+
+
+@app.route('/', methods=['GET'])
+def root():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if banned[0] == 'X':
+        return render_template('_error.html', title='Konto gesperrt', status='403 - Forbidden',
+                               message='Ihr Konto wurde vom*von der Betreiber*in gesperrt. Für mehr Informationen '
+                                       'können Sie uns kontaktieren.')
+    search_engine = 'DuckDuckGo'
+    if signed_in:
+        result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
+
+        if result is not None:
+            search_engine = result[0]
+    return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine)
+
+
+@app.route('/search', methods=['POST'])
+def route_search():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if not form_require(['q'], request.form):
+        return render_template('_error.html', title='Fehlendes Eingabefeld', status='400 - Bad Request',
+                               message='Mindestens ein erforderliches Eingabefeld wurde nicht an den Server '
+                                       'übermittelt.')
+    if banned[0] == 'X':
+        return render_template('_error.html', title='Konto gesperrt', status='403 - Forbidden',
+                               message='Ihr Konto wurde vom*von der Betreiber*in gesperrt. Für mehr Informationen '
+                                       'können Sie uns kontaktieren.')
+    search_engine = 'DuckDuckGo'
+    if signed_in:
+        result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
+        if result is not None:
+            search_engine = result[0]
+    return redirect(_SEARCH_ENGINES.get(search_engine, 'DuckDuckGo')['url']
+                    .replace('%s', quote(request.form.get('q', '').replace(' ', '+'), '+')).replace('%%', '%'))
 
 
 ########################################################################################################################

@@ -182,6 +182,20 @@ body{
     color: var(--footer-a-hover);
 }
 
+/* neuigkeiten */
+.neuigkeiten_box li{
+    width: calc(100vw - 12em - 2 * 1em);
+    height: 2.7em;
+    border-radius: 1em;
+}
+.neuigkeiten_box a{
+    text-decoration: none;
+    color: var(--footer-a);
+}
+.neuigkeiten_box a:hover {
+    color: var(--footer-a-hover);
+}
+
 /* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {
     .navbar{

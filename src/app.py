@@ -426,6 +426,14 @@ def route_search():
                     .replace('%s', quote(request.form.get('q', '').replace(' ', '+'), '+')).replace('%%', '%'))
 
 
+@app.route('/neuigkeiten', methods=['GET'])
+def route_neuigkeiten():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    return render_template('neuigkeiten.html', account=name, signed_in=signed_in)
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

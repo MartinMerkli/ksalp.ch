@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Fehler: {{ title }}</title>
     <style>
         :root{
             --scale: 1.0;
@@ -181,10 +181,10 @@
         <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/" class="navbar-link">Startseite</a></li>
         <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/neuigkeiten" class="navbar-link">Neuigkeiten</a></li>
         <li class="navbar-element"><span class="navbar-hide">&#129170; </span></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/anmelden" class="navbar-link">Anmelden</a></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/registrieren" class="navbar-link">Registrieren</a></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/abmelden" class="navbar-link">Abmelden</a></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/einstellungen" class="navbar-link">Einstellungen</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/anmelden" class="navbar-link">Anmelden</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/registrieren" class="navbar-link">Registrieren</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/abmelden" class="navbar-link">Abmelden</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/einstellungen" class="navbar-link">Einstellungen</a></li>
         <li class="navbar-element"><span id="navbar-prefix_about">&#129170; </span><a href="#" class="navbar-link" onclick="navbar_button('about')">Über</a></li>
         <li><ul class="navbar-second-list" id="navbar-list_about" style="display: none">
             <li class="navbar-second-element"><a href="/über/team" class="navbar-second-link">das Team</a></li>
@@ -201,7 +201,7 @@
 <div class="container">
     <div class="main">
         <p class="center"><small>Ein Fehler ist aufgetreten. Falls Sie die Fehlermeldung nicht verstehen, können Sie uns <a href="/über/kontakt" class="footer-link">kontaktieren</a>.</small></p>
-        <h1 class="center">{{ title }}</h1>
+        <h1 class="center">Fehler: {{ title }}</h1>
         <p class="center"><small>HTTP-Statuscode: {{ status }}</small></p>
         <p>{{ message }}</p>
     </div>

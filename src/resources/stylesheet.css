@@ -135,6 +135,20 @@ body{
     background: var(--box-li-bg);
     border: 0.1em solid var(--box-li-border);
 }
+.input-text{
+    outline: none;
+    font-size: 1.2em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    padding: 0.25em 0.7em;
+}
+.input-button{
+    font-size: 1.2em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    padding: 0.25em 0.7em;
+}
 
 /* _root */
 .-root_query{
@@ -194,6 +208,15 @@ body{
 }
 .neuigkeiten_box a:hover {
     color: var(--footer-a-hover);
+}
+
+/* konto_registrieren */
+.konto-registrieren_fieldset{
+    min-width: 8em;
+    display: inline-block;
+}
+.konto-registrieren_fieldset input{
+    float: right;
 }
 
 /* SCALING */

@@ -1,0 +1,44 @@
+{% extends _base.html %}
+
+{% block main %}
+    <script src="/src/libraries/zxcvbn.js"></script>
+    <script src="/src/scripts/konto_registrieren.js"></script>
+    <h2 class="center">Registrieren</h2>
+    <form action="/konto/registrieren2" method="post">
+        <fieldset class="konto-registrieren_fieldset">
+            <p>
+                <label for="konto-registrieren_name">Name: </label>
+                <input type="text" id="konto-registrieren_name" name="name" required placeholder="Vorname Nachname" minlength="2" maxlength="64" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_mail">@sluz.ch E-Mail: </label>
+                <input type="email" id="konto-registrieren_mail" name="mail" required placeholder="vorname_nachname@sluz.ch" minlength="8" maxlength="64" pattern="\S*@sluz\.ch" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_password">Passwort: <span id="konto-registrieren_password-info">[sehr schlecht]</span></label>
+                <input type="password" id="konto-registrieren_password" name="password" required placeholder="****************" minlength="8" maxlength="128" onkeyup="konto_registrieren__password_check(); konto_registrieren__password_match()" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_password-repeat">Passwort wiederholen: </label>
+                <input type="password" id="konto-registrieren_password-repeat" name="password-repeat" required placeholder="****************" minlength="8" maxlength="128" onkeyup="konto_registrieren__password_match()" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_agreement">Ich erkläre mich mit den gelesenen <a href="/agb">Allgemeinen Geschäftsbedingungen</a> sowie den <a href="/datenschutz">Datenschutzrichtlinien</a> einverstanden.</label>
+                <input type="checkbox" id="konto-registrieren_agreement" name="agreement" required class="input-button">
+            </p>
+            <p>
+                <label for="konto-registrieren_newsletter">Ich möchte Neuigkeiten in Form von E-Mails erhalten.</label>
+                <input type="checkbox" id="konto-registrieren_newsletter" name="newsletter" class="input-button">
+            </p>
+            <p>
+                <label for="konto-registrieren_submit">Sie werden eine E-Mail erhalten.</label>
+                <input type="submit" id="konto-registrieren_submit" name="submit" value="Weiter" class="input-button">
+            </p>
+        </fieldset>
+    </form>
+    <h3 class="center">FAQ</h3>
+    <div>
+        <h4>Wie wird die Stärke des Passwortes berechnet?</h4>
+        <p>Die Schätzung wird mit dem Algorithmus <i>zxcvbn</i> erstellt. <a href="https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_wheeler.pdf" class="footer-link">Hier</a> wird die Funktionsweise erklärt. <small>[Artikel ist nur auf Englisch verfügbar]</small></p>
+    </div>
+{% endblock %}

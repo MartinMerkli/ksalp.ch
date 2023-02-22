@@ -7,6 +7,8 @@
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import Flask, g, make_response, redirect, render_template, request, send_from_directory, session
 from hashlib import pbkdf2_hmac, sha256
 from httpanalyzer import FlaskRequest as AnalyzerRequest
@@ -15,9 +17,11 @@ from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Form
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
 from os import environ, urandom
 from os.path import exists, join
-from random import uniform
+from random import randint, uniform
 from resources.themes import THEMES as _THEMES
 from resources.search_engines import SEARCH_ENGINES as _SEARCH_ENGINES
+from smtplib import SMTP
+from ssl import create_default_context
 from sqlite3 import connect as sqlite_connect
 from time import sleep
 from urllib.parse import quote
@@ -122,14 +126,14 @@ db_tables = {
         'browser TEXT',  # information about user agent
     ],
     'mail': [
-        'id TEXT PRIMARY KEY',  # same as account
+        'id TEXT PRIMARY KEY',  # id; 9-digit base64
         'name TEXT',  # same as account
         'mail TEXT',  # same as account
         'salt TEXT',  # same as account
         'hash TEXT',  # same as account
         'newsletter INTEGER',  # same as account
         'valid TEXT',  # expiry date; %Y-%m-%d_%H-%M-%S
-        'code TEXT',  # code; 8-digit number as text
+        'code TEXT',  # code; 7-digit number as text
     ],
     'used_ids': [
         'id TEXT PRIMARY KEY',  # the id; usually base64
@@ -183,8 +187,8 @@ def rand_salt():
 
 
 def is_signed_in(cookies):
-    if 'id' in cookies:
-        result = query_db('SELECT valid FROM login WHERE id = ?', (cookies['id'],), True)
+    if 'qILs7nxM' in cookies:
+        result = query_db('SELECT valid FROM login WHERE id = ?', (cookies['qILs7nxM'],), True)
         if result is None:
             return False
         if result[0] >= get_current_time():
@@ -194,8 +198,8 @@ def is_signed_in(cookies):
 
 def account(cookies):
     unavailable = (False, None, None, 'Hell [Standard]', False, '____')
-    if 'id' in cookies:
-        result1 = query_db('select valid, account from login where id = ?', (cookies['id'],), True)
+    if 'qILs7nxM' in cookies:
+        result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
         if result1 is None:
             return unavailable
         if result1[0] < get_current_time():
@@ -264,6 +268,42 @@ def scan_request(r):
     return score
 
 
+def extract_browser(agent):
+    return f"{agent.platform}-{agent.browser}"
+
+
+########################################################################################################################
+# E-MAIL
+########################################################################################################################
+
+
+def send_mail(address, subject, message_plain, message):
+    smtp_server = environ['SMTP_SERVER']
+    smtp_port = int(environ['SMTP_PORT'])
+    sender_email = environ['SMTP_ADDRESS']
+    context = create_default_context()
+    server = None
+    m = MIMEMultipart('alternative')
+    m['Subject'] = subject
+    m['From'] = sender_email
+    m['To'] = address
+    part1 = MIMEText(message_plain, 'plain')
+    part2 = MIMEText(message, 'html')
+    m.attach(part1)
+    m.attach(part2)
+    try:
+        server = SMTP(smtp_server, smtp_port)
+        server.starttls(context=context)
+        server.login(sender_email, environ['SMTP_PASSWORD'])
+        server.sendmail(sender_email, address, m.as_string())
+    except Exception as error_:
+        logging_log(LOG_ERROR, e)
+        return error_
+    finally:
+        server.quit()
+    return None
+
+
 ########################################################################################################################
 # CHECK FORM INFO
 ########################################################################################################################
@@ -291,7 +331,7 @@ def error(code, event, args=None):
         406: 'Not Acceptable: URI not available in preferred format.',
         407: 'Proxy Authentication Required: You must authenticate with this proxy before proceeding.',
         408: 'Request Timeout: Request timed out; try again later.',
-        409: 'Conflict: Request(s) conflict(s).',
+        409: 'Conflict: A conflict between the request and the current state of the server exists.',
         410: 'Gone: URI no longer exists and has been permanently removed.',
         411: 'Length Required: Client must specify Content-Length.',
         412: 'Precondition Failed: Precondition in headers is false.',
@@ -300,6 +340,7 @@ def error(code, event, args=None):
         415: 'Unsupported Media Type: Entity body in unsupported format.',
         416: 'Requested Range Not Satisfiable: Cannot satisfy request range.',
         417: 'Expectation Failed: Expect condition could not be satisfied.',
+        422: 'Unprocessable Entity: Request was well-formed but was unable to be processed.',
         500: 'Internal Server Error: The server has encountered a situation it does not know how to handle.',
         501: 'Not Implemented: Server does not support this operation',
         502: 'Bad Gateway: Invalid responses from another server/proxy.',
@@ -341,6 +382,7 @@ def error(code, event, args=None):
             title, message = args[0], args[1]
         case '_':
             title, message = 'Fehler', 'Ein Fehler ist aufgetreten.'
+    request_errors_log.log(LOG_ERROR, '|'.join(['', status, title, message, '']))
     return render_template('_error.html', status=status, title=title, message=message), code
 
 
@@ -432,6 +474,120 @@ def route_neuigkeiten():
     if is_banned(0, banned):
         return error(403, 'banned', [0])
     return render_template('neuigkeiten.html', account=name, signed_in=signed_in)
+
+
+########################################################################################################################
+# ACCOUNT
+########################################################################################################################
+
+
+@app.route('/konto/registrieren', methods=['GET'])
+def route_konto_registrieren():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if signed_in:
+        return redirect('/')
+    return render_template('konto_registrieren.html', account=name, signed_in=signed_in)
+
+
+@app.route('/konto/registrieren2', methods=['POST'])
+def route_konto_registrieren2():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if signed_in:
+        return redirect('/')
+    random_sleep()
+    form = dict(request.form)
+    required = {
+        'name': ['Name', 2, 64],
+        'mail': ['E-Mail', 8, 64],
+        'password': ['Passwort', 8, 128],
+        'password-repeat': ['Passwort wiederholen', 8, 128]
+    }
+    for _, (key, val) in enumerate(required.items()):
+        if key not in form:
+            return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld '{val[0]}' wurde nicht an den "
+                                                                  f"Server übermittelt."])
+        length = form[key]
+        if length < val[1]:
+            return error(422, 'custom', ['Ungültiges Eingabefeld', f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu "
+                                                                   f"kurz."])
+        if length > val[1]:
+            return error(422, 'custom', ['Ungültiges Eingabefeld', f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu "
+                                                                   f"lang."])
+    if 'agreement' not in form:
+        return error(400, 'custom', ['Fehlendes Eingabefeld', f"Sie müssen die Allgemeinen Geschäftsbedingungen sowie "
+                                                              f"die Datenschutzrichtlinien lesen und akzeptieren."])
+    for i in ['name', 'mail']:
+        for j in ['<', '>', '"', '&', "'", ';']:
+            if j in i:
+                return error(422, 'custom', ['Ungültiges Eingabefeld', f"Das Eingabefeld {required[i]} enthält "
+                                                                       f"Zeichen, welche auf einen Hacker*innenangriff "
+                                                                       f"hindeuten. Ihre Anfrage wird deshalb nicht "
+                                                                       f"bearbeitet."])
+    if not form['mail'].endswith('@sluz.ch'):
+        return error(422, 'custom', ['Ungültige E-Mail Adresse', 'Die von Ihnen angegebene E-Mail Adresse endet nicht'
+                                                                 ' auf @sluz.ch'])
+    result = query_db('SELECT * FROM account WHERE mail=?', (form['mail'],), True)
+    if result is not None:
+        return error(409, 'custom', ['Konto existiert', f"Ein Konto mit der E-Mail Adresse '{form['mail']}' existiert "
+                                                        f"schon. Klicken Sie in der Navigationsleiste auf 'Anmelden', "
+                                                        f"um sich anzumelden."])
+    mail_id = rand_base64(9)
+    code = str(randint(1000000, 9999999))
+    salt = rand_salt()
+    query_db('INSERT INTO mail VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+             (mail_id, form['name'], form['mail'], salt, hash_password(form['password'], salt),
+              int('newsletter' in form), (datetime.now() + timedelta(minutes=16)).strftime('%Y-%m-%d_%H-%M-%S'), code))
+    if send_mail(form['mail'], 'E-Mail Verifikation [ksalp.ch]', f"Ihr Code lautet: {code}",
+                 f"<html><head><meta charset=\"UTF-8\"></head><body><h1>Ihr Code lautet: {code}</h1>"
+                 f"<p>Dieser Code ist 15 Minuten gültig</p></body></html>") is None:
+        resp = make_response(render_template('konto_registrieren2.html', account=name, signed_in=signed_in))
+        resp.set_cookie('mail_id', mail_id, timedelta(minutes=16))
+        return resp
+    return error(500, 'custom', ['Beim Versenden der Verifikations-E-Mail ist ein Fehler aufgetreten. Bitte '
+                                 'kontaktieren Sie den*die Betreiber*in, damit dieser Fehler behoben werden kann.'])
+
+
+@app.route('/konto/registrieren3', methods=['POST'])
+def route_konto_registrieren3():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if signed_in:
+        return redirect('/')
+    random_sleep()
+    form = dict(request.form)
+    if 'code' not in form:
+        return error(400, 'custom', 'Das Eingabefeld \'Code\' wurde nicht an den Server übermittelt.')
+    if 'mail_id' not in request.cookies:
+        return error(400, 'custom', 'Das Cookie \'mail_id\' konnte nicht gefunden werden. Bitte kontrollieren Sie, '
+                                    'dass Cookies aktiviert sind und versuchen Sie den Registrationsprozess erneut.')
+    result = query_db('SELECT id, name, mail, salt, hash, newsletter, valid, code FROM mail WHERE id=?',
+                      (request.cookies['mail_id']))
+    if result is None:
+        return error(404, 'custom', ['ID nicht gefunden', 'Einen Datenbank-Eintrag mit der ID, welche in Ihren '
+                                                          'Cookies spezifiziert ist, konnte nicht gefunden werden.'])
+    if result[6] < get_current_time():
+        return error(400, 'custom', ['Code abgelaufen', 'Der Verifikations-Code ist abgelaufen. Bitte versuchen Sie '
+                                                        'den Registrationsprozess erneut.'])
+    if result[7] != form['code']:
+        return error(400, 'custom', ['Falscher Code', 'Der Verifikations-Code stimmt nicht überein. Bitte versuchen'
+                                                      ' Sie es erneut.'])
+    query_db('UPDATE mail SET valid=? WHERE id=?', ('0000-00-00_00-00-00', request.cookies['mail_id']))
+    acc_id = rand_base64(8)
+    query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+             (acc_id, result[1], result[2], result[3], result[4], result[5], get_current_time(), 'Hell [Standard]', 0,
+              '0000-00-00_00-00-00', '____', 'DuckDuckGo'))
+    login = rand_base64(43)
+    query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
+             (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
+              extract_browser(request.user_agent)))
+    resp = make_response(redirect('/'))
+    resp.set_cookie('qILs7nxM', login, timedelta(days=64))
+    return resp
 
 
 ########################################################################################################################

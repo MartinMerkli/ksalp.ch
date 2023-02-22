@@ -1,0 +1,18 @@
+{% extends _base.html %}
+
+{% block main %}
+    <h2 class="center">Registrieren</h2>
+    <p>Sie sollten einen</p>
+    <form action="/konto/registrieren3" method="post">
+        <fieldset class="konto-registrieren_fieldset">
+            <p>
+                <label for="konto-registrieren_name">Code: </label>
+                <input type="text" id="konto-registrieren_name" name="code" required placeholder="1234567" minlength="7" maxlength="7" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_submit">Der Code ist 15 Minuten lang gültig.</label>
+                <input type="submit" id="konto-registrieren_submit" name="submit" value="Weiter" class="input-button">
+            </p>
+        </fieldset>
+    </form>
+{% endblock %}

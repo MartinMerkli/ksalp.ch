@@ -407,10 +407,10 @@ def before_request():
 
 @app.route('/src/<path:file>', methods=['GET'])
 def route_src(file):
-    return send_from_directory(join(app.root_path, 'static'), file)
+    return send_from_directory(join(app.root_path, 'src'), file)
 
 
-@app.route('/src/<theme>', methods=['GET'])
+@app.route('/stylesheets/<theme>', methods=['GET'])
 def route_stylesheets(theme):
     theme = theme.replace('.css', '')
     if theme not in _THEMES:
@@ -449,7 +449,7 @@ def root():
 
         if result is not None:
             search_engine = result[0]
-    return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine)
+    return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine, theme=theme)
 
 
 @app.route('/search', methods=['POST'])
@@ -473,7 +473,7 @@ def route_neuigkeiten():
     signed_in, acc, name, theme, paid, banned = account(request.cookies)
     if is_banned(0, banned):
         return error(403, 'banned', [0])
-    return render_template('neuigkeiten.html', account=name, signed_in=signed_in)
+    return render_template('neuigkeiten.html', account=name, signed_in=signed_in, theme=theme)
 
 
 ########################################################################################################################
@@ -488,7 +488,7 @@ def route_konto_registrieren():
         return error(403, 'banned', [0])
     if signed_in:
         return redirect('/')
-    return render_template('konto_registrieren.html', account=name, signed_in=signed_in)
+    return render_template('konto_registrieren.html', account=name, signed_in=signed_in, theme=theme)
 
 
 @app.route('/konto/registrieren2', methods=['POST'])
@@ -544,7 +544,8 @@ def route_konto_registrieren2():
     if send_mail(form['mail'], 'E-Mail Verifikation [ksalp.ch]', f"Ihr Code lautet: {code}",
                  f"<html><head><meta charset=\"UTF-8\"></head><body><h1>Ihr Code lautet: {code}</h1>"
                  f"<p>Dieser Code ist 15 Minuten gültig</p></body></html>") is None:
-        resp = make_response(render_template('konto_registrieren2.html', account=name, signed_in=signed_in))
+        resp = make_response(render_template('konto_registrieren2.html', account=name, signed_in=signed_in,
+                                             theme=theme))
         resp.set_cookie('mail_id', mail_id, timedelta(minutes=16))
         return resp
     return error(500, 'custom', ['Beim Versenden der Verifikations-E-Mail ist ein Fehler aufgetreten. Bitte '
@@ -597,7 +598,7 @@ def route_konto_anmelden():
         return error(403, 'banned', [0])
     if signed_in:
         return redirect('/')
-    return render_template('konto_anmelden.html', account=name, signed_in=signed_in)
+    return render_template('konto_anmelden.html', account=name, signed_in=signed_in, theme=theme)
 
 
 @app.route('/konto/anmelden2', methods=['POST'])

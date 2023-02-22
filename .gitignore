@@ -5,7 +5,7 @@ recycle_bin/
 *.db
 
 # backups containing parts of the databases mentioned above
-/backups/
+backups/
 *.backup
 
 # private login data
@@ -13,9 +13,9 @@ gunicorn.conf.py
 key.bin
 
 # not usable on other computers
-/venv/
-/.idea/
-/__pycache__/
+venv/
+.idea/
+__pycache__/
 *.pyc
 
 # test of new features and possibilities

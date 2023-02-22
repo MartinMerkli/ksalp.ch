@@ -9,8 +9,8 @@ recycle_bin/
 *.backup
 
 # private login data
-/gunicorn.conf.py
-/resources/key.bin
+gunicorn.conf.py
+key.bin
 
 # not usable on other computers
 /venv/

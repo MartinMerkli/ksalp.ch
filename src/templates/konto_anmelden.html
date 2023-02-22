@@ -1,0 +1,21 @@
+{% extends _base.html %}
+
+{% block main %}
+    <h2 class="center">Anmelden</h2>
+    <form action="/konto/anmelden2" method="post">
+        <fieldset class="konto-registrieren_fieldset">
+            <p>
+                <label for="konto-registrieren_mail">E-Mail: </label>
+                <input type="email" id="konto-registrieren_mail" name="mail" required placeholder="vorname_nachname@sluz.ch" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_password">Passwort: </label>
+                <input type="password" id="konto-registrieren_password" name="password" required placeholder="****************" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_submit">Anmeldungen sind nur für 64 Tage gültig.</label>
+                <input type="submit" id="konto-registrieren_submit" name="submit" value="Anmelden" class="input-button">
+            </p>
+        </fieldset>
+    </form>
+{% endblock %}

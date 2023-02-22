@@ -188,16 +188,16 @@ def rand_salt():
 
 def is_signed_in(cookies):
     if 'qILs7nxM' in cookies:
-        result = query_db('SELECT valid FROM login WHERE id = ?', (cookies['qILs7nxM'],), True)
+        result = query_db('SELECT valid, browser FROM login WHERE id = ?', (cookies['qILs7nxM'],), True)
         if result is None:
             return False
-        if result[0] >= get_current_time():
+        if result[0] >= get_current_time() and extract_browser(request.user_agent) == result[2]:
             return True
     return False
 
 
 def account(cookies):
-    unavailable = (False, None, None, 'Hell [Standard]', False, '____')
+    unavailable = (False, None, '', 'Hell [Standard]', False, '____')
     if 'qILs7nxM' in cookies:
         result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
         if result1 is None:
@@ -566,7 +566,7 @@ def route_konto_registrieren3():
         return error(400, 'custom', 'Das Cookie \'mail_id\' konnte nicht gefunden werden. Bitte kontrollieren Sie, '
                                     'dass Cookies aktiviert sind und versuchen Sie den Registrationsprozess erneut.')
     result = query_db('SELECT id, name, mail, salt, hash, newsletter, valid, code FROM mail WHERE id=?',
-                      (request.cookies['mail_id']))
+                      (request.cookies['mail_id'],), True)
     if result is None:
         return error(404, 'custom', ['ID nicht gefunden', 'Einen Datenbank-Eintrag mit der ID, welche in Ihren '
                                                           'Cookies spezifiziert ist, konnte nicht gefunden werden.'])
@@ -584,6 +584,54 @@ def route_konto_registrieren3():
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
              (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
+              extract_browser(request.user_agent)))
+    resp = make_response(redirect('/'))
+    resp.set_cookie('qILs7nxM', login, timedelta(days=64))
+    return resp
+
+
+@app.route('/konto/anmelden', methods=['GET'])
+def route_konto_anmelden():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if signed_in:
+        return redirect('/')
+    return render_template('konto_anmelden.html', account=name, signed_in=signed_in)
+
+
+@app.route('/konto/anmelden2', methods=['POST'])
+def route_konto_anmelden2():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if signed_in:
+        return redirect('/')
+    random_sleep()
+    form = dict(request.form)
+    required = {
+        'mail': 'E-Mail',
+        'password': 'Passwort',
+    }
+    for _, (key, val) in enumerate(required.items()):
+        if key not in form:
+            return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld '{val}' wurde nicht an den "
+                                                                  f"Server übermittelt."])
+    result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (form['mail']), True)
+    fail = False
+    if result is None:
+        fail = True
+    if hash_password(form['password'], result[2]) != result[3]:
+        fail = True
+    if fail:
+        return error(422, 'custom', ['Falsches Passwort oder E-Mail',
+                                     'Entweder wurde das falsche Passwort eingegeben oder ein Konto mit dieser E-Mail '
+                                     'existiert nicht. Damit Hacker*innen nicht herausfinden können, ob eine '
+                                     'spezifische E-Mail-Adresse registriert ist, wird keine genauere Auskunft '
+                                     'gegeben.'])
+    login = rand_base64(43)
+    query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
+             (login, result[0], (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
     resp = make_response(redirect('/'))
     resp.set_cookie('qILs7nxM', login, timedelta(days=64))

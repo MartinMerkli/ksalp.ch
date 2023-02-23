@@ -639,6 +639,18 @@ def route_konto_anmelden2():
     return resp
 
 
+@app.route('/konto/abmelden', methods=['GET'])
+def route_konto_anmelden():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if 'qILs7nxM' in request.cookies and signed_in:
+        query_db('DELETE FROM login WHERE id=?', (request.cookies['qILs7nxM'],))
+    resp = make_response(redirect('/'))
+    resp.delete_cookie('qILs7nxM')
+    return resp
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

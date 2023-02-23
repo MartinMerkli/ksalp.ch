@@ -192,7 +192,7 @@ def is_signed_in(cookies):
         result = query_db('SELECT valid, browser FROM login WHERE id = ?', (cookies['qILs7nxM'],), True)
         if not result:
             return False
-        if result[0][0] >= get_current_time() and extract_browser(request.user_agent) == result[0][2]:
+        if result[0] >= get_current_time() and extract_browser(request.user_agent) == result[1]:
             return True
     return False
 
@@ -203,12 +203,12 @@ def account(cookies):
         result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
         if not result1:
             return unavailable
-        if result1[0][0] < get_current_time():
+        if result1[0] < get_current_time():
             return unavailable
-        result2 = query_db('select id, name, theme, payment, banned from accounts where id = ?', (result1[0][1],), True)
+        result2 = query_db('select id, name, theme, payment, banned from account where id = ?', (result1[1],), True)
         if not result2:
             return unavailable
-        return True, result2[0][0], result2[0][1], result2[0][2], result2[0][3] >= get_current_time(), result2[0][4]
+        return True, result2[0], result2[1], result2[2], result2[3] >= get_current_time(), result2[4]
     return unavailable
 
 
@@ -242,12 +242,12 @@ def scan_request(r):
     if r.remote_addr not in ['127.0.0.1', '0.0.0.0', None]:
         access_log.info(f'{hash_ip(ip)}\t{0}\t{int(is_signed_in(r.cookies))}\t{r.method}\t{path}\t{user_agent}')
         return 0
-    score = query_db('SELECT score, address FROM ipv4 WHERE address = ?', (ip,))
+    score = query_db('SELECT score, address FROM ipv4 WHERE address = ?', (ip,), True)
     if not score:
         score = 2
         query_db('INSERT INTO ipv4 VALUES (?, ?, ?)', (ip, 'unknown', 2))
     else:
-        score = score[0][0]
+        score = score[0]
     before = score
 
     if 0 < score < 3:
@@ -448,7 +448,7 @@ def root():
     if signed_in:
         result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
         if not result:
-            search_engine = result[0][0]
+            search_engine = result[0]
     return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine, theme=theme)
 
 
@@ -514,7 +514,7 @@ def route_konto_registrieren2():
         if length < val[1]:
             return error(422, 'custom', ['Ungültiges Eingabefeld', f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu "
                                                                    f"kurz."])
-        if length > val[1]:
+        if length > val[2]:
             return error(422, 'custom', ['Ungültiges Eingabefeld', f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu "
                                                                    f"lang."])
     if 'agreement' not in form:
@@ -571,16 +571,16 @@ def route_konto_registrieren3():
     if not result:
         return error(404, 'custom', ['ID nicht gefunden', 'Einen Datenbank-Eintrag mit der ID, welche in Ihren '
                                                           'Cookies spezifiziert ist, konnte nicht gefunden werden.'])
-    if result[0][6] < get_current_time():
+    if result[6] < get_current_time():
         return error(400, 'custom', ['Code abgelaufen', 'Der Verifikations-Code ist abgelaufen. Bitte versuchen Sie '
                                                         'den Registrationsprozess erneut.'])
-    if result[0][7] != form['code']:
+    if result[7] != form['code']:
         return error(400, 'custom', ['Falscher Code', 'Der Verifikations-Code stimmt nicht überein. Bitte versuchen'
                                                       ' Sie es erneut.'])
     query_db('UPDATE mail SET valid=? WHERE id=?', ('0000-00-00_00-00-00', request.cookies['mail_id']))
     acc_id = rand_base64(8)
     query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-             (acc_id, result[0][1], result[0][2], result[0][3], result[0][4], result[0][5], get_current_time(),
+             (acc_id, result[1], result[2], result[3], result[4], result[5], get_current_time(),
               'Hell [Standard]', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo'))
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
@@ -622,7 +622,7 @@ def route_konto_anmelden2():
     fail = False
     if not result:
         fail = True
-    if hash_password(form['password'], result[0][2]) != result[0][3]:
+    if hash_password(form['password'], result[2]) != result[3]:
         fail = True
     if fail:
         return error(422, 'custom', ['Falsches Passwort oder E-Mail',
@@ -632,7 +632,7 @@ def route_konto_anmelden2():
                                      'gegeben.'])
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
-             (login, result[0][0], (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
+             (login, result[0], (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
     resp = make_response(redirect('/'))
     resp.set_cookie('qILs7nxM', login, timedelta(days=64))

@@ -1,0 +1,122 @@
+{% extends '_base.html' %}
+
+{% block main %}
+    <script src="/src/libraries/zxcvbn.js"></script>
+    <script src="/src/scripts/konto_einstellungen.js"></script>
+    <h2 class="center">Einstellungen</h2>
+    <div>
+        <p class="center">Name: <i>{{ account }}</i>&emsp;ID: <i>#{{ acc }}</i></p>
+    </div>
+    <div>
+        <h3>Inhaltsverzeichnis</h3>
+        <ul>
+            <li><a href="#premium">Premium</a></li>
+            <li><a href="#passwort">Passwort ändern</a></li>
+            <li><a href="#iframes">iFrame's</a></li>
+            <li><a href="#skalierung">Skalierung</a></li>
+            <li><a href="#benachrichtigungen">Benachrichtigungen</a></li>
+            <li><a href="#farbschema">Farbschema</a></li>
+            <li><a href="#suchmaschine">Suchmaschine</a></li>
+        </ul>
+    </div>
+    <div>
+        <h3 class="center" id="premium">Premium</h3>
+        {% if paid %}
+            <p>Ihr Premium-Abonnement ist noch für {{ remaining }} Tage gültig.</p>
+        {% else %}
+            <p>Mit einem Premium-Abonnement erhalten Sie zusätzliche Funktionen, wie zusätzliche Farbschemen, und Sie
+                unterstützen ksalp.ch. Das Betreiben einer Webseite ist nicht günstig; ausserdem werden hunderte
+                Arbeitsstunden investiert. Das Abonnement kostet nur 4 Franken pro Jahr und ermöglicht diese Webseite
+                erst. <a href="/über/kontakt">Kontaktieren Sie uns</a>, falls Sie uns unterstützen möchten. Spenden sind
+                natürlich auch willkommen.</p>
+        {% endif %}
+    </div>
+    <div>
+        <h3 class="center" id="passwort">Passwort ändern</h3>
+        <form action="/konto/einstellungen/password" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <p>
+                    <label for="konto-einstellungen_password_password">Passwort: </label>
+                    <input type="password" id="konto-einstellungen_password_password" name="password" required placeholder="****************" class="input-text">
+                </p>
+                <p>
+                    <label for="konto-einstellungen_password_password-new">neues Passwort: <span id="konto-einstellungen_password_password-info">[sehr schlecht]</span></label>
+                    <input type="password" id="konto-einstellungen_password_password-new" name="password-new" required placeholder="****************" minlength="8" maxlength="128" onkeyup="konto_einstellungen__password_check(); konto_einstellungen__password_match()" class="input-text">
+                </p>
+                <p>
+                    <label for="konto-einstellungen_password_password-new-repeat">neues Passwort wiederholen: </label>
+                    <input type="password" id="konto-einstellungen_password_password-new-repeat" name="password-new-repeat" required placeholder="****************" minlength="8" maxlength="128" onkeyup="konto_einstellungen__password_match()" class="input-text">
+                </p>
+                <p>
+                    <label for="konto-einstellungen_password_submit">Sie werden, je nach Ihren Einstellungen, eine E-Mail erhalten.</label>
+                    <input type="submit" id="konto-einstellungen_password_submit" name="submit" value="Ändern" class="input-button">
+                </p>
+            </fieldset>
+        </form>
+    </div>
+    <div>
+        <h3 class="center" id="iframes">iFrame's</h3>
+        <p>Mit iframe's wird die Vorschau der Dokumente erstellt. <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe">Mehr Informationen</a>. Da einige Menschen keine iframe's nutzen möchten, lassen sie sich hier sowohl deaktivieren und auch aktivieren.</p>
+        {% if iframes %}
+            <p>iframe's sind zurzeit aktiviert. <a href="/konto/einstellungen/iframes/false">Deaktivieren</a></p>
+        {% else %}
+            <p>iframe's sind zurzeit deaktiviert. <a href="/konto/einstellungen/iframes/true">Aktivieren</a></p>
+        {% endif %}
+    </div>
+    <div>
+        <h3 class="center" id="skalierung">Skalierung</h3>
+        <p>Die Skalierung legt fest, wie gross die Elemente dieser Webseite auf Ihrem Bildschirm angezeigt werden.
+            Falls Sie auf Ihrem Mobiltelefon die Knöpfe fast nicht drücken können, sollten Sie die Skalierung erhöhen.
+            Dieser Wert gilt nur für Ihren aktuellen Browser und wird normalerweise von Ihrem Browser nach 3 Monaten gelöscht.</p>
+        <p>Aktuell beträgt die Skalierung {{ scale }}%.</p>
+         <form action="/konto/einstellungen/scale" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <p>
+                    <label for="konto-einstellungen_scale_scale">Skalierungsfaktor [in %]: </label>
+                    <input type="number" id="konto-einstellungen_scale_scale" name="scale" required placeholder="100" value="{{ scale }}" min="1" max="999" class="input-text">
+                </p>
+                <p>
+                    <label for="konto-einstellungen_scale_submit">Diese Einstellung ist nur 3 Monate gültig.</label>
+                    <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
+                </p>
+            </fieldset>
+        </form>
+    </div>
+    <div>
+        <h3 class="center" id="benachrichtigungen">Benachrichtigungen</h3>
+        <p>Falls Benachrichtigungen per E-Mail aktiviert sind, erhalten Sie Meldungen zu verdächtigen Aktivitäten auf
+            Ihrem Konto und Informationen zu bevorstehenden Änderungen der Allgemeinen Geschäftsbedingungen.</p>
+        {% if newsletter %}
+            <p>Benachrichtigungen per E-Mail sind zurzeit aktiviert. <a href="/konto/einstellungen/newsletter/false">Deaktivieren</a></p>
+        {% else %}
+            <p>Benachrichtigungen per E-Mail sind zurzeit deaktiviert. <a href="/konto/einstellungen/newsletter/true">Aktivieren</a></p>
+        {% endif %}
+    </div>
+    <div>
+        <h3 class="center" id="farbschema">Farbschema</h3>
+        {% if paid %}
+            <p>Aktuell ist '{{ theme }}' ausgewählt. Es sind folgende Farbschemen verfügbar:</p>
+            <ul>
+                {% for element in themes %}
+                    <li><p><a href="/konto/einstellungen/theme/{{ element }}">{{ element }}</a></p></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Um diese Einstellung zu ändern, benötigen Sie ein Premium-Abonnement.</p>
+        {% endif %}
+    </div>
+    <div>
+        <h3 class="center" id="suchmaschine">Suchmaschine</h3>
+        <p>Zurzeit ist '{{ search_engine }}' ausgewählt. Suchmaschinen mit 'TOR' im Namen sind nur mit dem
+            <a href="https://www.torproject.org/">Tor-Browser</a> nutzbar. Folgende Suchmaschen sind verfügbar:</p>
+        <ul>
+            {% for engine in engines %}
+                <li><p><a href="/konto/einstellungen/search_engine/{{ engine }}"></a>{{ engine }}</p></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <p>Um Ihre E-Mail oder Ihren Namen zu ändern, oder Ihr Konto zu löschen, <a href="/über/kontakt">kontaktieren</a>
+            Sie uns bitte.</p>
+    </div>
+{% endblock %}

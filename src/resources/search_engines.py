@@ -4,7 +4,7 @@ SEARCH_ENGINES = {
         'recommended': True,
         'favicon': 'https://duckduckgo.com/assets/icons/meta/DDG-iOS-icon_152x152.png'
     },
-    'Brave Search': {
+    'BraveSearch': {
         'url': 'https://search.brave.com/search?q=%s',
         'recommended': True,
         'favicon': 'https://cdn.search.brave.com/serp/v1/static/brand/'
@@ -40,24 +40,24 @@ SEARCH_ENGINES = {
         'recommended': False,
         'favicon': 'https://www.bing.com/favicon.ico'
     },
-    'DuckDuckGo Lite': {
+    'DuckDuckGo[Lite]': {
         'url': 'https://lite.duckduckgo.com/lite/?q=%s',
         'recommended': True,
         'favicon': 'https://lite.duckduckgo.com/assets/icons/meta/DDG-iOS-icon_152x152.png'
     },
-    'DuckDuckGo [TOR]': {
+    'DuckDuckGo[TOR]': {
         'url': 'https://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion/?q=%s',
         'recommended': True,
         'favicon': 'https://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion/'
                    'assets/icons/meta/DDG-iOS-icon_152x152.png?v=2'
     },
-    'Brave Search [TOR]': {
+    'Brave Search[TOR]': {
         'url': 'https://search.brave4u7jddbv7cyviptqjc7jusxh72uik7zt6adtckl5f4nwy2v72qd.onion/search?q=%s',
         'recommended': True,
         'favicon': 'https://cdn.search.brave4u7jddbv7cyviptqjc7jusxh72uik7zt6adtckl5f4nwy2v72qd.onion/serp/v1/static/'
                    'brand/8eabe183f0d1f2cb3e2916b7b20c310efd196d740c8cecd341732fcd396fb665-apple-touch-icon.png'
     },
-    'SearXNG [TOR]': {
+    'SearXNG[TOR]': {
         'url': 'http://searx3aolosaf3urwnhpynlhuokqsgz47si4pzz5hvb7uuzyjncl2tid.onion/search?q=%s',
         'recommended': True,
         'favicon': 'http://searx3aolosaf3urwnhpynlhuokqsgz47si4pzz5hvb7uuzyjncl2tid.onion/'

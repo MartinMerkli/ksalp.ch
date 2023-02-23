@@ -1,5 +1,5 @@
 THEMES = {
-    'Hell [Standard]': {
+    'hell': {
         'bg': '#ffffff',
         'fg': '#000000',
         'navbar-bg': '#eeeeee',

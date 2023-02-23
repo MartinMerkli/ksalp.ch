@@ -198,7 +198,7 @@ def is_signed_in(cookies):
 
 
 def account(cookies):
-    unavailable = (False, None, '', 'Hell [Standard]', False, '____')
+    unavailable = (False, None, '', 'hell', False, '____')
     if 'qILs7nxM' in cookies:
         result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
         if not result1:
@@ -208,7 +208,11 @@ def account(cookies):
         result2 = query_db('select id, name, theme, payment, banned from account where id = ?', (result1[1],), True)
         if not result2:
             return unavailable
-        return True, result2[0], result2[1], result2[2], result2[3] >= get_current_time(), result2[4]
+        paid = result2[3] >= get_current_time()
+        theme = 'hell'
+        if paid:
+            theme = result2[2]
+        return True, result2[0], result2[1], theme, paid, result2[4]
     return unavailable
 
 
@@ -319,7 +323,7 @@ def form_require(keys, form):
 ########################################################################################################################
 
 
-def error(code, event, args=None):
+def error(code, event='_', args=None):
     if args is None:
         args = []
     codes = {
@@ -379,6 +383,9 @@ def error(code, event, args=None):
         case 'form-missing':
             title, message = 'Fehlendes Eingabefeld', 'Mindestens ein erforderliches Eingabefeld wurde nicht an den ' \
                                                       'Server übermittelt.'
+        case 'premium':
+            title, message = 'Kein Premium-Abo', 'Sie müssen ein Premium-Abonnement besitzen, um diese Funktion ' \
+                                                 'nutzen zu können.'
         case 'custom':
             title, message = args[0], args[1]
         case '_':
@@ -395,7 +402,7 @@ def error(code, event, args=None):
 @app.before_request
 def before_request():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(days=64)
+    app.permanent_session_lifetime = timedelta(days=92)
     score = scan_request(request)
     if score == 0:
         return render_template('_banned.html', ip=request.access_route[-1]), 403
@@ -415,7 +422,7 @@ def route_src(file):
 def route_stylesheets(theme):
     theme = theme.replace('.css', '')
     if theme not in _THEMES:
-        theme = 'Hell [Standard]'
+        theme = 'hell'
     with open(join(app.root_path, 'resources', 'stylesheet.css'), 'r', encoding='utf-8') as f:
         template = f.read()
     for i in _THEMES[theme]:
@@ -581,7 +588,7 @@ def route_konto_registrieren3():
     acc_id = rand_base64(8)
     query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
              (acc_id, result[1], result[2], result[3], result[4], result[5], get_current_time(),
-              'Hell [Standard]', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo'))
+              'hell', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo'))
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
              (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
@@ -649,6 +656,113 @@ def route_konto_anmelden():
     resp = make_response(redirect('/'))
     resp.delete_cookie('qILs7nxM')
     return resp
+
+
+@app.route('/konto/einstellungen', methods=['GET'])
+def route_konto_einstellungen():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if not signed_in:
+        return redirect('/konto/anmelden')
+    result = query_db('SELECT newsletter, theme, iframe, payment, search_engine FROM account WHERE id=?', (acc,), True)
+    if not result:
+        return redirect('/konto/anmelden')
+    try:
+        scale = int(request.cookies.get('scale-factor', '1.0'))
+    except ValueError:
+        scale = 1.0
+    return render_template('konto_einstellungen.html', account=name, signed_in=signed_in, theme=theme, acc=acc,
+                           remaining=result[3], iframes=result[2], scale=str(scale * 100), newsletter=result[0],
+                           themes=list(_THEMES.keys()), search_engine=result[4], engines=list(_SEARCH_ENGINES.keys()))
+
+
+@app.route('/konto/einstellungen/<path:path>', methods=['GET', 'POST'])
+def route_konto_einstellungen_(path: str):
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if not signed_in:
+        return redirect('/konto/anmelden')
+    setting = path.split('/')
+    match setting[0]:
+        case 'password':
+            form = dict(request.form)
+            required = {
+                'password': ['Passwort', 0, 1024],
+                'password-new': ['neues Passwort', 8, 128],
+                'password-new-repeat': ['neues Passwort wiederholen', 8, 128]
+            }
+            for _, (key, val) in enumerate(required.items()):
+                if key not in form:
+                    return error(400, 'custom', ['Fehlendes Eingabefeld',
+                                                 f"Das Eingabefeld '{val[0]}' wurde nicht an den Server übermittelt."])
+                length = len(form[key])
+                if length < val[1]:
+                    return error(422, 'custom', ['Ungültiges Eingabefeld',
+                                                 f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu kurz."])
+                if length > val[2]:
+                    return error(422, 'custom', ['Ungültiges Eingabefeld',
+                                                 f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu lang."])
+            result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (acc,), True)
+            if not result:
+                return error(404)
+            if hash_password(form['password'], result[2]) != result[3]:
+                return error(422, 'custom', ['Falsches Passwort', 'Sie haben ein falsches Passwort eingegeben. Bitte '
+                                                                  'versuchen Sie es erneut.'])
+            salt = rand_salt()
+            query_db('UPDATE account SET salt=?, hash=? WHERE id=?',
+                     (salt, hash_password(form['password-new'], salt), acc))
+        case 'iframes':
+            if len(setting) < 2:
+                return error(400)
+            if setting[1] == 'true':
+                value = 1
+            elif setting[1] == 'false':
+                value = 0
+            else:
+                return error(400)
+            query_db('UPDATE account SET iframe=? WHERE id=?', (value, acc))
+        case 'scale':
+            form = dict(request.form)
+            if 'scale' not in form:
+                return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld 'Skalierungsfaktor' wurde "
+                                                                      f"nicht an den Server übermittelt."])
+            try:
+                scale = int(form['scale'])
+            except ValueError:
+                return error(400, 'custom', ['Ungültiger Wert', f"Der Wert des Eingabefeldes 'Skalierungsfaktor' kann "
+                                                                f"nicht verstanden werden."])
+            resp = make_response(redirect('/konto/einstellungen', 200))
+            resp.set_cookie('scale-factor', str(scale / 100))
+            return resp
+        case 'newsletter':
+            if len(setting) < 2:
+                return error(400)
+            if setting[1] == 'true':
+                value = 1
+            elif setting[1] == 'false':
+                value = 0
+            else:
+                return error(400)
+            query_db('UPDATE account SET newsletter=? WHERE id=?', (value, acc))
+        case 'theme':
+            if len(setting) < 2:
+                return error(400)
+            if setting[1] not in _THEMES:
+                return error(400)
+            if not paid:
+                return error(403, 'premium')
+            query_db('UPDATE account SET theme=? WHERE id=?', (setting[1], acc))
+        case 'search_engine':
+            if len(setting) < 2:
+                return error(400)
+            if setting[1] not in _SEARCH_ENGINES:
+                return error(400)
+            query_db('UPDATE account SET search_engine=? WHERE id=?', (setting[1], acc))
+        case _:
+            return error(400)
+    return redirect('/konto/einstellungen', 200)
 
 
 ########################################################################################################################

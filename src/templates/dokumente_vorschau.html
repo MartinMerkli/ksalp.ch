@@ -1,0 +1,56 @@
+{% extends '_base.html' %}
+
+{% block main %}
+    <h2 class="center">[{{ subject }}] {{ name }}</h2>
+    <p class="center"><b>{{ extension }} {{ size }}</b>&emsp;Zuletzt bearbeitet am <b>{{ edited1 }}</b> um
+        {{ edited2 }} Uhr&emsp;Erstellt am <b>{{ created1 }}</b> um {{ created2 }} Uhr&emsp;Hochgeladen von
+        <b><i>{{ author }}</i></b></p>
+    <p><small>Klasse: {{ class_ }}&emsp;Klassenstufe: {{ grade }}&emsp;Sprache: {{ language }}&emsp;ID: <i>#{{ document_id }}</i></small></p>
+    <p class="center">
+        <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" download="{{ download }}">Herunterladen</a> &emsp;
+        <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" target="_blank">In neuem Tab öffnen</a> &emsp;
+        {% if is_owner %}
+            <a class="footer-link" href="/dokumente/bearbeiten?id={{ document_id }}" target="_blank">In neuem Tab öffnen</a> &emsp;
+        {% endif %}
+        <small><a class="footer-link" href="/melden?typ=dokument&id={{ document_id }}" target="_blank">In neuem Tab öffnen</a></small> &emsp;
+        {% if not allow_iframe %}
+            <small>Die Vorschau ist standardmässig deaktiviert. <a class="footer-link" href="/konto/einstellungen">Ändern</a></small>
+        {% elif not iframe_available %}
+            <small>Für dieses Dokument ist keine Vorschau verfügbar.</small>
+        {% else %}
+            <small>Die Beschreibung und Kommentare befinden sich weiter unten.</small>
+        {% endif %}
+    </p>
+    {% if allow_iframe and iframe_available %}
+        <iframe class="dokumente-vorschau_iframe" src="/dokumente/dokument/{{ document_id }}/{{ download }}"></iframe>
+    {% endif %}
+    <h3>Beschreibung</h3>
+    <p><i>{{ description }}</i></p>
+    <h3>Kommentare</h3>
+    {% if signed_in %}
+        <h4>Neuen Kommentar verfassen</h4>
+        <form action="/kommentar/neu?typ=dokument&id={{ document_id }}" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <p>
+                    <label for="dokumente-vorschau_kommentar-comment">Name: </label>
+                    <input type="text" id="dokumente-vorschau_kommentar-comment" name="comment" required placeholder="..." minlength="1" maxlength="2048" class="input-text">
+                </p>
+                <p>
+                    <label for="konto-registrieren_submit">Metadaten werden öffentlich sichtbar sein.</label>
+                    <input type="submit" id="konto-registrieren_submit" name="submit" value="Veröffentlichen" class="input-button">
+                </p>
+            </fieldset>
+        </form>
+    {% else %}
+        <p>Sie müssen angemeldet sein, um Kommentare zu verfassen.</p>
+    {% endif %}
+    <div class="comments-container">
+        {% for comment in comments %}
+            <div>
+                <p><b><i>{{ comment[0] }}</i></b> am {{ comment[1] }} <small><i>#{{ comment[2] }}</i></small>
+                    <a href="/melden?typ=kommentar?id={{ comment[2] }}"></a></p>
+                <p><i>{{ comment[3] }}</i></p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

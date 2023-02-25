@@ -149,6 +149,19 @@ body{
     background-color: var(--bg);
     padding: 0.25em 0.7em;
 }
+.comments-container{
+    border: 0.1em solid var(--box-li-border);
+    border-radius: 1em;
+    gap: 2em;
+}
+.comments-container div{
+    border: 0.1em solid var(--box-li-border);
+    border-radius: 1em;
+    margin: 0;
+}
+.comments-container p{
+    margin: 0.5em;
+}
 
 /* _root */
 .-root_query{
@@ -217,6 +230,23 @@ body{
 }
 .konto-registrieren_fieldset input{
     float: right;
+}
+
+/* dokumente */
+.dokumente_box{
+    margin-top: 1em;
+    display: inline-grid;
+    padding: 0.1em;
+}
+.dokumente_box div{
+    border-width: 0.1em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    padding: 0.25em 0.7em;
+    display: inline;
+    float: none;
+    cursor: pointer;
 }
 
 /* SCALING */

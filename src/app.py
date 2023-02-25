@@ -15,16 +15,23 @@ from httpanalyzer import FlaskRequest as AnalyzerRequest
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
+from magic import from_file as type_from_file
 from os import environ, urandom
-from os.path import exists, join
+from os.path import exists, getsize, join
 from random import randint, uniform
+from resources.extensions import EXTENSIONS as _EXTENSIONS
+from resources.grades import GRADES as _GRADES
+from resources.languages import LANGUAGES as _LANGUAGES
 from resources.themes import THEMES as _THEMES
 from resources.search_engines import SEARCH_ENGINES as _SEARCH_ENGINES
+from resources.size_units import SIZE_UNITS as _SIZE_UNITS
+from resources.subjects import SUBJECTS as _SUBJECTS
 from smtplib import SMTP
 from ssl import create_default_context
 from sqlite3 import connect as sqlite_connect
 from time import sleep
 from urllib.parse import quote
+from werkzeug.utils import secure_filename
 
 
 ########################################################################################################################
@@ -114,6 +121,28 @@ db_tables = {
         'banned TEXT',  # banned status; indices [_ or X]: 0: platform, 1: calendar, 2: comments, 3: uploading
         'search_engine TEXT',  # name of the selected search engine
     ],
+    'comment': [
+        'id TEXT PRIMARY KEY',  # comment id; 11-digit base64
+        'content TEXT',  # the comment
+        'author TEXT',  # account id
+        'document TEXT',  # document id
+        'posted TEXT',  # date; %Y-%m-%d_%H-%M-%S
+    ],
+    'document': [
+        'id TEXT PRIMARY KEY',  # document id; 10-digit base64
+        'title TEXT',  # short description
+        'subject TEXT',  # subject code, 1 to 3 digits
+        'description TEXT',  # additional information
+        'class TEXT',  # class name
+        'grade TEXT',  # '1' to '6' or '-'
+        'language TEXT',  # 2-digit language code
+        'owner TEXT',  # account id
+        'edited TEXT',  # date; %Y-%m-%d_%H-%M-%S
+        'created TEXT',  # date; %Y-%m-%d_%H-%M-%S
+        'extension TEXT',  # file extension
+        'mimetype TEXT',  # mimetype
+        'size TEXT',  # human-readable size
+    ],
     'ipv4': [
         'address TEXT PRIMARY KEY',  # IPv4 address
         'owner TEXT',  # organisation or physical location
@@ -142,8 +171,8 @@ db_tables = {
 }
 
 with app.app_context():
-    for _, (k, v) in enumerate(db_tables.items()):
-        query_db(f"CREATE TABLE IF NOT EXISTS {k} ({', '.join(v)})")
+    for _, (_k, _v) in enumerate(db_tables.items()):
+        query_db(f"CREATE TABLE IF NOT EXISTS {_k} ({', '.join(_v)})")
 
 
 ########################################################################################################################
@@ -218,6 +247,13 @@ def account(cookies):
 
 def is_banned(index, banned):
     return banned[index] == 'X' or banned[0] == 'X'
+
+
+def account_name(acc):
+    result = query_db('SELECT name FROM account WHERE id=?', (acc,), True)
+    if not result:
+        return ''
+    return result[0]
 
 
 ########################################################################################################################
@@ -386,6 +422,8 @@ def error(code, event='_', args=None):
         case 'premium':
             title, message = 'Kein Premium-Abo', 'Sie müssen ein Premium-Abonnement besitzen, um diese Funktion ' \
                                                  'nutzen zu können.'
+        case 'account':
+            title, message = 'Nicht angemeldet', 'Sie müssen angemeldet sein, um diese Funktion nutzen zu können.'
         case 'custom':
             title, message = args[0], args[1]
         case '_':
@@ -481,6 +519,46 @@ def route_neuigkeiten():
     if is_banned(0, banned):
         return error(403, 'banned', [0])
     return render_template('neuigkeiten.html', account=name, signed_in=signed_in, theme=theme)
+
+
+@app.route('/melden', methods=['GET'])
+def route_melden():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    type_ = request.args.get('typ', '', type=str)
+    id_ = request.args.get('id', '', type=str)
+    if (not type_) or (not id_):
+        return error(400, 'form-missing')
+    if signed_in:
+        author = acc
+    else:
+        author = request.access_route[-1]
+    abuse_report_log.critical(f"{int(signed_in)}\t{author}\t{type_}\t{id_}")
+    return render_template('melden.html', account=name, signed_in=signed_in, theme=theme, type_=type_, id_=id_)
+
+
+@app.route('/kommentar/neu', methods=['POST'])
+def route_kommentar_neu():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(2, banned):
+        return error(403, 'banned', [2])
+    if not signed_in:
+        return error(401, 'account')
+    type_ = request.args.get('typ', '', type=str)
+    id_ = request.args.get('id', '', type=str)
+    content = request.form.get('comment', '')
+    if (not id_) or (not content):
+        return error(400, 'form-missing')
+    if len(content) > 2048:
+        return error(422, 'custom', ['Ungültiges Eingabefeld', 'Der Kommentar ist zu lang.'])
+    query_db('INSERT INTO comment VALUES (?, ?, ?, ?, ?)', (rand_base64(11), content, acc, id_, get_current_time()))
+    match type_:
+        case 'dokument':
+            return redirect(f"/dokumente/vorschau/{id_}")
+        case _:
+            pass
+    return redirect('/')
 
 
 ########################################################################################################################
@@ -647,7 +725,7 @@ def route_konto_anmelden2():
 
 
 @app.route('/konto/abmelden', methods=['GET'])
-def route_konto_anmelden():
+def route_konto_abmelden():
     signed_in, acc, name, theme, paid, banned = account(request.cookies)
     if is_banned(0, banned):
         return error(403, 'banned', [0])
@@ -763,6 +841,202 @@ def route_konto_einstellungen_(path: str):
         case _:
             return error(400)
     return redirect('/konto/einstellungen', 200)
+
+
+########################################################################################################################
+# DOCUMENTS
+########################################################################################################################
+
+
+@app.route('/dokumente', methods=['GET'])
+def route_dokumente():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    class_ = request.args.get('klasse', default='', type=str)
+    grade_ = request.args.get('klassenstufe', default='', type=str)
+    indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created',
+               'extension', 'size']
+    if class_:
+        result = query_db(f"SELECT {', '.join(indices)} FROM document WHERE class=?", (class_,))  # noqa
+    elif grade_:
+        result = query_db(f"SELECT {', '.join(indices)} FROM document WHERE grade=?", (grade_,))  # noqa
+    else:
+        result = query_db(f"SELECT {', '.join(indices)} FROM document")  # noqa
+    documents = []
+    for _, val in enumerate(result):
+        document = {}
+        for i, v in enumerate(indices):
+            document[v] = val[i]
+        document['owner'] = account_name(document['owner'])
+        documents.append(document)
+    return render_template('dokumente.html', account=name, signed_in=signed_in, theme=theme, documents=documents,
+                           show_class=not bool(class_), show_grade=not bool(grade_))
+
+
+@app.route('/dokumente/vorschau/<string:doc_id>', methods=['GET'])
+def route_dokumente_vorschau(doc_id):
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    result1 = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created, extension, '
+                       'size, mimetype FROM document WHERE id=?', (doc_id,), True)
+    if not result1:
+        return error(404)
+    allow_iframe = False
+    if signed_in:
+        result2 = query_db('SELECT iframe FROM account WHERE id=?', (acc,), True)
+        allow_iframe = bool(result2[0])
+    iframe_available = True  # temporary
+    download = f"{secure_filename(result1[0])}.{result1[9]}"
+    comments = []
+    result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (doc_id,))
+    for i in result3:
+        comments.append([account_name(i[2]), i[3], i[0], i[1]])
+    return render_template('dokumente_vorschau.html', account=name, signed_in=signed_in, theme=theme,
+                           subject=result1[1], name=result1[0], extension=result1[9].upper(), size=result1[10],
+                           edited1=result1[7].split('_')[0], edited2=result1[7].split('_')[1].replace('-', ':'),
+                           created1=result1[8].split('_')[0], created2=result1[8].split('_')[1].replace('-', ':'),
+                           author=account_name(result1[6]), class_=result1[3], grade=result1[4], language=result1[5],
+                           document_id=doc_id, download=download, allow_iframe=allow_iframe,
+                           iframe_available=iframe_available, comments=comments, description=result1[2])
+
+
+@app.route('/dokumente/dokument/<string:doc_id>/<path:_>', methods=['GET'])
+def route_dokumente_dokument(doc_id, _):
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    result = query_db('SELECT mimetype FROM document WHERE id=?', (doc_id,))
+    if not result:
+        return error(404)
+    resp = make_response(send_from_directory(join(app.root_path, 'users/documents'), doc_id))
+    resp.mimetype = result[0]
+    return resp
+
+
+@app.route('/dokumente/neu', methods=['GET'])
+def route_dokumente_neu():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(3, banned):
+        return error(403, 'banned', [3])
+    if not signed_in:
+        return error(401, 'account')
+    return render_template('dokumente_neu.html', account=name, signed_in=signed_in, theme=theme,
+                           subjects=_SUBJECTS.items(), languages=_LANGUAGES, grades=_GRADES)
+
+
+@app.route('/dokumente/neu/post', methods=['POST'])
+def route_dokumente_neu_post():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(3, banned):
+        return error(403, 'banned', [3])
+    if not signed_in:
+        return error(401, 'account')
+    form = dict(request.form)
+    for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
+        if i not in form:
+            return error(400, 'form-missing')
+    if not (0 < len(form['title']) < 65):
+        return error(422, 'form-missing')
+    if not (0 < len(form['class']) < 5):
+        return error(422, 'form-missing')
+    if not (0 < len(form['description']) < 5):
+        return error(422, 'form-missing')
+    if form['subject'] not in _SUBJECTS:
+        return error(422, 'form-missing')
+    if form['language'] not in _LANGUAGES:
+        return error(422, 'form-missing')
+    if form['grade'] not in _GRADES:
+        return error(422, 'form-missing')
+    if 'file' not in request.files:
+        return error(422, 'form-missing')
+    doc_id = rand_base64(10)
+    path = join(app.root_path, 'users/documents', doc_id)
+    file = request.files['file']
+    file.save(path)
+    file.close()
+    mimetype = type_from_file(path, mime=True)
+    extension = _EXTENSIONS.get(mimetype, '---')
+    file_size = getsize(path)
+    exponent = 0
+    while file_size >= 1000:
+        file_size //= 1000
+        exponent += 1
+    size = f"{file_size} {_SIZE_UNITS[exponent]}"
+    query_db('INSERT INTO document VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+             (doc_id, form['title'], form['subject'], form['description'], form['class'], form['grade'],
+              form['language'], acc, get_current_time(), get_current_time(), extension, mimetype, size))
+    return redirect(f"/dokumente/vorschau/{doc_id}")
+
+
+@app.route('/dokumente/bearbeiten', methods=['GET'])
+def route_dokumente_bearbeiten():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(3, banned):
+        return error(403, 'banned', [3])
+    if not signed_in:
+        return error(401, 'account')
+    doc_id = request.args.get('id', '', str)
+    result = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created, extension, '
+                      'size, mimetype FROM document WHERE id=?', (doc_id,), True)
+    if not result:
+        return error(404)
+    if result[6] != acc:
+        return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
+    return render_template('dokumente_bearbeiten.html', account=name, signed_in=signed_in, theme=theme,
+                           subject=result[1], title=result[0], class_=result[3], grade=result[4], language=result[5],
+                           document_id=doc_id, description=result[2])
+
+
+@app.route('/dokumente/bearbeiten/post', methods=['GET'])
+def route_dokumente_bearbeiten():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(3, banned):
+        return error(403, 'banned', [3])
+    if not signed_in:
+        return error(401, 'account')
+    doc_id = request.args.get('id', '', str)
+    result = query_db('SELECT owner, created FROM document WHERE id=?', (doc_id,), True)
+    if not result:
+        return error(404)
+    if result[0] != acc:
+        return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
+    form = dict(request.form)
+    for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
+        if i not in form:
+            return error(400, 'form-missing')
+    if not (0 < len(form['title']) < 65):
+        return error(422, 'form-missing')
+    if not (0 < len(form['class']) < 5):
+        return error(422, 'form-missing')
+    if not (0 < len(form['description']) < 5):
+        return error(422, 'form-missing')
+    if form['subject'] not in _SUBJECTS:
+        return error(422, 'form-missing')
+    if form['language'] not in _LANGUAGES:
+        return error(422, 'form-missing')
+    if form['grade'] not in _GRADES:
+        return error(422, 'form-missing')
+    if 'file' not in request.files:
+        return error(422, 'form-missing')
+    path = join(app.root_path, 'users/documents', doc_id)
+    file = request.files['file']
+    file.save(path)
+    file.close()
+    mimetype = type_from_file(path, mime=True)
+    extension = _EXTENSIONS.get(mimetype, '---')
+    file_size = getsize(path)
+    exponent = 0
+    while file_size >= 1000:
+        file_size //= 1000
+        exponent += 1
+    size = f"{file_size} {_SIZE_UNITS[exponent]}"
+    query_db('UPDATE document SET title=?, subject=?, description=?, class=?, grade=?, language=?, edited=?, '
+             'extension=?, mimetype=?, size=? WHERE id=?',
+             (form['title'], form['subject'], form['description'], form['class'], form['grade'],
+              form['language'], get_current_time(), extension, mimetype, size, doc_id))
+    return redirect(f"/dokumente/vorschau/{doc_id}")
 
 
 ########################################################################################################################

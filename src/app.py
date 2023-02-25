@@ -626,9 +626,10 @@ def route_konto_registrieren2():
     mail_id = rand_base64(9)
     code = str(randint(1000000, 9999999))
     salt = rand_salt()
-    query_db('INSERT INTO mail VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    query_db('INSERT INTO mail VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
              (mail_id, form['name'], form['mail'], salt, hash_password(form['password'], salt),
-              int('newsletter' in form), (datetime.now() + timedelta(minutes=16)).strftime('%Y-%m-%d_%H-%M-%S'), code))
+              int('newsletter' in form), form['class'], form['grade'],
+              (datetime.now() + timedelta(minutes=16)).strftime('%Y-%m-%d_%H-%M-%S'), code))
     if send_mail(form['mail'], 'E-Mail Verifikation [ksalp.ch]', f"Ihr Code lautet: {code}",
                  f"<html><head><meta charset=\"UTF-8\"></head><body><h1>Ihr Code lautet: {code}</h1>"
                  f"<p>Dieser Code ist 15 Minuten gültig</p></body></html>") is None:
@@ -654,7 +655,7 @@ def route_konto_registrieren3():
     if 'mail_id' not in request.cookies:
         return error(400, 'custom', 'Das Cookie \'mail_id\' konnte nicht gefunden werden. Bitte kontrollieren Sie, '
                                     'dass Cookies aktiviert sind und versuchen Sie den Registrationsprozess erneut.')
-    result = query_db('SELECT id, name, mail, salt, hash, newsletter, valid, code FROM mail WHERE id=?',
+    result = query_db('SELECT id, name, mail, salt, hash, newsletter, valid, code, class, grade FROM mail WHERE id=?',
                       (request.cookies['mail_id'],), True)
     if not result:
         return error(404, 'custom', ['ID nicht gefunden', 'Einen Datenbank-Eintrag mit der ID, welche in Ihren '
@@ -667,9 +668,9 @@ def route_konto_registrieren3():
                                                       ' Sie es erneut.'])
     query_db('UPDATE mail SET valid=? WHERE id=?', ('0000-00-00_00-00-00', request.cookies['mail_id']))
     acc_id = rand_base64(8)
-    query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
              (acc_id, result[1], result[2], result[3], result[4], result[5], get_current_time(),
-              'hell', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo'))
+              'hell', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo', result[8], result[9]))
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
              (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
@@ -1011,7 +1012,7 @@ def route_dokumente_bearbeiten():
 
 
 @app.route('/dokumente/bearbeiten/post', methods=['GET'])
-def route_dokumente_bearbeiten():
+def route_dokumente_bearbeiten_post():
     signed_in, acc, name, theme, paid, banned = account(request.cookies)
     if is_banned(3, banned):
         return error(403, 'banned', [3])

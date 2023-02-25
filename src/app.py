@@ -115,6 +115,8 @@ db_tables = {
         'payment TEXT',  # payment expiry date; %Y-%m-%d_%H-%M-%S
         'banned TEXT',  # banned status; indices [_ or X]: 0: platform, 1: calendar, 2: comments, 3: uploading
         'search_engine TEXT',  # name of the selected search engine
+        'class TEXT',  # class the person belongs to
+        'grade TEXT',  # grade the person is in
     ],
     'comment': [
         'id TEXT PRIMARY KEY',  # comment id; 11-digit base64
@@ -156,6 +158,8 @@ db_tables = {
         'salt TEXT',  # same as account
         'hash TEXT',  # same as account
         'newsletter INTEGER',  # same as account
+        'class TEXT',  # same as account
+        'grade TEXT',  # same as account
         'valid TEXT',  # expiry date; %Y-%m-%d_%H-%M-%S
         'code TEXT',  # code; 7-digit number as text
     ],
@@ -584,7 +588,9 @@ def route_konto_registrieren2():
         'name': ['Name', 2, 64],
         'mail': ['E-Mail', 8, 64],
         'password': ['Passwort', 8, 128],
-        'password-repeat': ['Passwort wiederholen', 8, 128]
+        'password-repeat': ['Passwort wiederholen', 8, 128],
+        'class': ['Klasse', 1, 4],
+        'grade': ['Klassenstufe', 0, 65536]
     }
     for _, (key, val) in enumerate(required.items()):
         if key not in form:
@@ -597,6 +603,8 @@ def route_konto_registrieren2():
         if length > val[2]:
             return error(422, 'custom', ['Ungültiges Eingabefeld', f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu "
                                                                    f"lang."])
+    if form['grade'] not in _GRADES:
+        return error(422, 'form-missing')
     if 'agreement' not in form:
         return error(400, 'custom', ['Fehlendes Eingabefeld', f"Sie müssen die Allgemeinen Geschäftsbedingungen sowie "
                                                               f"die Datenschutzrichtlinien lesen und akzeptieren."])
@@ -738,7 +746,8 @@ def route_konto_einstellungen():
         return error(403, 'banned', [0])
     if not signed_in:
         return redirect('/konto/anmelden')
-    result = query_db('SELECT newsletter, theme, iframe, payment, search_engine FROM account WHERE id=?', (acc,), True)
+    result = query_db('SELECT newsletter, theme, iframe, payment, search_engine, class, grade FROM account WHERE id=?',
+                      (acc,), True)
     if not result:
         return redirect('/konto/anmelden')
     try:
@@ -747,7 +756,8 @@ def route_konto_einstellungen():
         scale = 1.0
     return render_template('konto_einstellungen.html', account=name, signed_in=signed_in, theme=theme, acc=acc,
                            remaining=result[3], iframes=result[2], scale=str(scale * 100), newsletter=result[0],
-                           themes=list(_THEMES.keys()), search_engine=result[4], engines=list(_SEARCH_ENGINES.keys()))
+                           themes=list(_THEMES.keys()), search_engine=result[4], engines=list(_SEARCH_ENGINES.keys()),
+                           grades=_GRADES, class_=result[5], grade=result[6])
 
 
 @app.route('/konto/einstellungen/<path:path>', methods=['GET', 'POST'])
@@ -833,6 +843,22 @@ def route_konto_einstellungen_(path: str):
             if setting[1] not in _SEARCH_ENGINES:
                 return error(400)
             query_db('UPDATE account SET search_engine=? WHERE id=?', (setting[1], acc))
+        case 'class':
+            form = dict(request.form)
+            if 'class' not in form:
+                return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld 'Klasse' wurde "
+                                                                      f"nicht an den Server übermittelt."])
+            if not(0 < len(form['class']) < 5):
+                return error(422, 'form-missing')
+            query_db('UPDATE account SET class=? WHERE id=?', (form['class'], acc))
+        case 'grade':
+            form = dict(request.form)
+            if 'grade' not in form:
+                return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld 'Klasse' wurde "
+                                                                      f"nicht an den Server übermittelt."])
+            if form['grade'] not in _GRADES:
+                return error(422, 'form-missing')
+            query_db('UPDATE account SET grade=? WHERE id=?', (form['grade'], acc))
         case _:
             return error(400)
     return redirect('/konto/einstellungen', 200)

@@ -11,6 +11,18 @@
                 <input type="text" id="konto-registrieren_name" name="name" required placeholder="Vorname Nachname" minlength="2" maxlength="64" class="input-text">
             </p>
             <p>
+                <label for="konto-registrieren_class">Klasse (oder '-'): </label>
+                <input type="text" id="konto-registrieren_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text">
+            </p>
+            <p>
+                <label for="konto-registrieren_grade">Klassenstufe (oder '-'): </label>
+                <select id="konto-registrieren_grade" name="grade" required class="input-text">
+                    {% for grade in grades %}
+                        <option value="{{ grade }}">{{ grade }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+            <p>
                 <label for="konto-registrieren_mail">@sluz.ch E-Mail: </label>
                 <input type="email" id="konto-registrieren_mail" name="mail" required placeholder="vorname_nachname@sluz.ch" minlength="8" maxlength="64" pattern="\S*@sluz\.ch" class="input-text">
             </p>

@@ -17,6 +17,8 @@
             <li><a href="#benachrichtigungen">Benachrichtigungen</a></li>
             <li><a href="#farbschema">Farbschema</a></li>
             <li><a href="#suchmaschine">Suchmaschine</a></li>
+            <li><a href="#klasse">Klasse</a></li>
+            <li><a href="#klassenstufe">Klassenstufe</a></li>
         </ul>
     </div>
     <div>
@@ -24,7 +26,7 @@
         {% if paid %}
             <p>Ihr Premium-Abonnement ist noch für {{ remaining }} Tage gültig.</p>
         {% else %}
-            <p>Mit einem Premium-Abonnement erhalten Sie zusätzliche Funktionen, wie zusätzliche Farbschemen, und Sie
+            <p>Mit einem Premium-Abonnement erhalten Sie zusätzliche Funktionen, wie weitere Farbschemen, und Sie
                 unterstützen ksalp.ch. Das Betreiben einer Webseite ist nicht günstig; ausserdem werden hunderte
                 Arbeitsstunden investiert. Das Abonnement kostet nur 4 Franken pro Jahr und ermöglicht diese Webseite
                 erst. <a href="/über/kontakt">Kontaktieren Sie uns</a>, falls Sie uns unterstützen möchten. Spenden sind
@@ -114,6 +116,42 @@
                 <li><p><a href="/konto/einstellungen/search_engine/{{ engine }}"></a>{{ engine }}</p></li>
             {% endfor %}
         </ul>
+    </div>
+    <div>
+        <h3 class="center" id="klasse">Klasse</h3>
+        <p>Sie sind in der Klasse {{ class_ }}.</p>
+        <form action="/konto/einstellungen/class" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <p>
+                    <label for="konto-einstellungen_class">Klasse (oder '-'): </label>
+                    <input type="text" id="konto-einstellungen_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ class_ }}">
+                </p>
+                <p>
+                    <label for="konto-einstellungen_scale_submit"></label>
+                    <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
+                </p>
+            </fieldset>
+        </form>
+    </div>
+    <div>
+        <h3 class="center" id="klassenstufe">Klassenstufe</h3>
+        <p>Die Klassenstufe {{ grade }} ist ausgewählt.</p>
+        <form action="/konto/einstellungen/grade" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <p>
+                <label for="konto-einstellungen_grade">Klassenstufe (oder '-'): </label>
+                    <select id="konto-einstellungen_grade" name="grade" required class="input-text">
+                        {% for element in grades %}
+                            <option value="{{ element }}" {% if element == grade %}selected{% endif %}>{{ element }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <p>
+                    <label for="konto-einstellungen_scale_submit"></label>
+                    <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
+                </p>
+            </fieldset>
+        </form>
     </div>
     <div>
         <p>Um Ihre E-Mail oder Ihren Namen zu ändern, oder Ihr Konto zu löschen, <a href="/über/kontakt">kontaktieren</a>

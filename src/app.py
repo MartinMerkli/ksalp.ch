@@ -19,13 +19,8 @@ from magic import from_file as type_from_file
 from os import environ, urandom
 from os.path import exists, getsize, join
 from random import randint, uniform
-from resources.extensions import EXTENSIONS as _EXTENSIONS
-from resources.grades import GRADES as _GRADES
-from resources.languages import LANGUAGES as _LANGUAGES
-from resources.themes import THEMES as _THEMES
-from resources.search_engines import SEARCH_ENGINES as _SEARCH_ENGINES
-from resources.size_units import SIZE_UNITS as _SIZE_UNITS
-from resources.subjects import SUBJECTS as _SUBJECTS
+from resources.src import EXTENSIONS as _EXTENSIONS, GRADES as _GRADES, LANGUAGES as _LANGUAGES, THEMES as _THEMES
+from resources.src import SEARCH_ENGINES as _SEARCH_ENGINES, SIZE_UNITS as _SIZE_UNITS, SUBJECTS as _SUBJECTS
 from smtplib import SMTP
 from ssl import create_default_context
 from sqlite3 import connect as sqlite_connect

@@ -1061,6 +1061,28 @@ def route_dokumente_bearbeiten_post():
     return redirect(f"/dokumente/vorschau/{doc_id}")
 
 
+@app.route('/dokumente/klasse', methods=['GET'])
+def route_dokumente_klasse():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if not signed_in:
+        return error(401, 'account')
+    result = query_db('SELECT class FROM account WHERE id=?', (acc,))
+    return redirect(f"/dokumente?klasse={result[0]}")
+
+
+@app.route('/dokumente/klassenstufe', methods=['GET'])
+def route_dokumente_klassenstufe():
+    signed_in, acc, name, theme, paid, banned = account(request.cookies)
+    if is_banned(0, banned):
+        return error(403, 'banned', [0])
+    if not signed_in:
+        return error(401, 'account')
+    result = query_db('SELECT grade FROM account WHERE id=?', (acc,))
+    return redirect(f"/dokumente?klassenstufe={result[0]}")
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

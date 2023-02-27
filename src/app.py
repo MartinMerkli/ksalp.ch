@@ -572,7 +572,7 @@ def route_konto_registrieren():
         return error(403, 'banned', [0])
     if signed_in:
         return redirect('/')
-    return render_template('konto_registrieren.html', account=name, signed_in=signed_in, theme=theme)
+    return render_template('konto_registrieren.html', account=name, signed_in=signed_in, theme=theme, grades=_GRADES)
 
 
 @app.route('/konto/registrieren2', methods=['POST'])

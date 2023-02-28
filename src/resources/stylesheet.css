@@ -141,6 +141,7 @@ body{
     border-radius: 1em;
     border-color: var(--root-query);
     padding: 0.25em 0.7em;
+    float: right;
 }
 .input-button{
     font-size: 1.2em;
@@ -148,6 +149,7 @@ body{
     border-color: var(--root-query);
     background-color: var(--bg);
     padding: 0.25em 0.7em;
+    float: right;
 }
 .comments-container{
     border: 0.1em solid var(--box-li-border);

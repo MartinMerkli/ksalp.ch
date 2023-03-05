@@ -1,4 +1,4 @@
-<h1 align="center">httpanalyzer</h1>
+<h1 align="center">ksalp.ch</h1>
 
 <p align="center">
 <a href="https://mit-license.org/"><img alt="License" src="https://img.shields.io/badge/Framework-Flask-blue?style=for-the-badge&logo=flask"></a>

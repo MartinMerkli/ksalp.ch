@@ -151,6 +151,14 @@ body{
     padding: 0.25em 0.7em;
     float: right;
 }
+.input-checkbox{
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    padding: 0.25em;
+    float: right;
+    transform: scale(1.5);
+}
 .comments-container{
     border: 0.1em solid var(--box-li-border);
     border-radius: 1em;

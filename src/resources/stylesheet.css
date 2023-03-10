@@ -258,6 +258,12 @@ body{
     float: none;
     cursor: pointer;
 }
+.dokumente_filter{
+    outline: none;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    padding: 0.15em 0.4em;
+}
 
 /* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {

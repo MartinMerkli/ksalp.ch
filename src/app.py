@@ -707,11 +707,11 @@ def route_konto_anmelden2():
         if key not in form:
             return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld '{val}' wurde nicht an den "
                                                                   f"Server übermittelt."])
-    result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (form['mail']), True)
+    result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (form['mail'],), True)
     fail = False
     if not result:
         fail = True
-    if hash_password(form['password'], result[2]) != result[3]:
+    elif hash_password(form['password'], result[2]) != result[3]:
         fail = True
     if fail:
         return error(422, 'custom', ['Falsches Passwort oder E-Mail',

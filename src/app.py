@@ -1068,7 +1068,7 @@ def route_dokumente_klasse():
         return error(403, 'banned', [0])
     if not signed_in:
         return error(401, 'account')
-    result = query_db('SELECT class FROM account WHERE id=?', (acc,))
+    result = query_db('SELECT class FROM account WHERE id=?', (acc,), True)
     return redirect(f"/dokumente?klasse={result[0]}")
 
 
@@ -1079,7 +1079,7 @@ def route_dokumente_klassenstufe():
         return error(403, 'banned', [0])
     if not signed_in:
         return error(401, 'account')
-    result = query_db('SELECT grade FROM account WHERE id=?', (acc,))
+    result = query_db('SELECT grade FROM account WHERE id=?', (acc,), True)
     return redirect(f"/dokumente?klassenstufe={result[0]}")
 
 

@@ -220,6 +220,9 @@ body{
 .-root-cards a:hover{
     color: var(--footer-a-hover);
 }
+.-root-search{
+    text-align: center;
+}
 
 /* neuigkeiten */
 .neuigkeiten_box li{

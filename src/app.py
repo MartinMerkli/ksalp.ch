@@ -491,7 +491,7 @@ def root():
     search_engine = 'DuckDuckGo'
     if signed_in:
         result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
-        if not result:
+        if result:
             search_engine = result[0]
     return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine, theme=theme)
 

@@ -255,6 +255,43 @@ def account_name(acc):
     return result[0]
 
 
+def create_context(cookies):
+    context = {
+        'signed_in': False,
+        'id': '',
+        'theme': 'hell',
+        'name': 'Nicht angemeldet',
+        'payment': '2000-00-00',
+        'paid': False,
+        'banned': '____',
+        'mail': '',
+        'salt': '',
+        'hash': '',
+        'newsletter': False,
+        'iframe': False,
+        'search_engine': 'DuckDuckGo',
+        'class_': '',
+        'grade': ''
+    }
+    if 'qILs7nxM' in cookies:
+        result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
+        if not result1:
+            return context
+        if result1[0] < get_current_time():
+            return context
+        result2 = query_db('select id, name, mail, theme, payment, banned, newsletter, iframe, search_engine, class,'
+                           ' grade, hash, salt from account where id = ?', (result1[1],), True)
+        if not result2:
+            return context
+        result_order = ['id', 'name', 'mail', 'theme', 'payment', 'banned', 'newsletter', 'iframe', 'search_engine',
+                        'class_', 'grade', 'hash', 'salt']
+        for i, v in enumerate(result_order):
+            context[v] = result2[i]
+        context['signed_in'] = True
+        context['paid'] = context['payment'] >= get_current_time()
+    return context
+
+
 ########################################################################################################################
 # PROTECTION
 ########################################################################################################################

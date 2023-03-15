@@ -522,64 +522,54 @@ def route_stylesheets(theme):
 
 @app.route('/', methods=['GET'])
 def root():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    search_engine = 'DuckDuckGo'
-    if signed_in:
-        result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
-        if result:
-            search_engine = result[0]
-    return render_template('_root.html', account=name, signed_in=signed_in, search_engine=search_engine, theme=theme)
+    return render_template('_root.html', **context)
 
 
 @app.route('/search', methods=['POST'])
 def route_search():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not form_require(['q'], request.form):
         return error(400, 'form-missing')
-    search_engine = 'DuckDuckGo'
-    if signed_in:
-        result = query_db('SELECT search_engine FROM account WHERE id=?', (acc,), True)
-        if result is not None:
-            search_engine = result[0]
-    return redirect(_SEARCH_ENGINES.get(search_engine, 'DuckDuckGo')['url']
+    return redirect(_SEARCH_ENGINES.get(context['search_engine'], 'DuckDuckGo')['url']
                     .replace('%s', quote(request.form.get('q', '').replace(' ', '+'), '+')).replace('%%', '%'))
 
 
 @app.route('/neuigkeiten', methods=['GET'])
 def route_neuigkeiten():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    return render_template('neuigkeiten.html', account=name, signed_in=signed_in, theme=theme)
+    return render_template('neuigkeiten.html', **context)
 
 
 @app.route('/melden', methods=['GET'])
 def route_melden():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     type_ = request.args.get('typ', '', type=str)
     id_ = request.args.get('id', '', type=str)
     if (not type_) or (not id_):
         return error(400, 'form-missing')
-    if signed_in:
-        author = acc
+    if context['signed_in']:
+        author = context['id']
     else:
         author = request.access_route[-1]
-    abuse_report_log.critical(f"{int(signed_in)}\t{author}\t{type_}\t{id_}")
-    return render_template('melden.html', account=name, signed_in=signed_in, theme=theme, type_=type_, id_=id_)
+    abuse_report_log.critical(f"{int(context['signed_in'])}\t{author}\t{type_}\t{id_}")
+    return render_template('melden.html', **context)
 
 
 @app.route('/kommentar/neu', methods=['POST'])
 def route_kommentar_neu():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(2, banned):
-        return error(403, 'banned', [2])
-    if not signed_in:
+    context = create_context(request.cookies)
+    if is_banned(2, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['signed_in']:
         return error(401, 'account')
     type_ = request.args.get('typ', '', type=str)
     id_ = request.args.get('id', '', type=str)
@@ -588,7 +578,8 @@ def route_kommentar_neu():
         return error(400, 'form-missing')
     if len(content) > 2048:
         return error(422, 'custom', ['Ungültiges Eingabefeld', 'Der Kommentar ist zu lang.'])
-    query_db('INSERT INTO comment VALUES (?, ?, ?, ?, ?)', (rand_base64(11), content, acc, id_, get_current_time()))
+    query_db('INSERT INTO comment VALUES (?, ?, ?, ?, ?)', (rand_base64(11), content, context['id'], id_,
+                                                            get_current_time()))
     match type_:
         case 'dokument':
             return redirect(f"/dokumente/vorschau/{id_}")
@@ -604,20 +595,20 @@ def route_kommentar_neu():
 
 @app.route('/konto/registrieren', methods=['GET'])
 def route_konto_registrieren():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if signed_in:
+    if context['signed_in']:
         return redirect('/')
-    return render_template('konto_registrieren.html', account=name, signed_in=signed_in, theme=theme, grades=_GRADES)
+    return render_template('konto_registrieren.html', **context, grades=_GRADES)
 
 
 @app.route('/konto/registrieren2', methods=['POST'])
 def route_konto_registrieren2():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if signed_in:
+    if context['signed_in']:
         return redirect('/')
     random_sleep()
     form = dict(request.form)
@@ -670,8 +661,7 @@ def route_konto_registrieren2():
     if send_mail(form['mail'], 'E-Mail Verifikation [ksalp.ch]', f"Ihr Code lautet: {code}",
                  f"<html><head><meta charset=\"UTF-8\"></head><body><h1>Ihr Code lautet: {code}</h1>"
                  f"<p>Dieser Code ist 15 Minuten gültig</p></body></html>") is None:
-        resp = make_response(render_template('konto_registrieren2.html', account=name, signed_in=signed_in,
-                                             theme=theme))
+        resp = make_response(render_template('konto_registrieren2.html', **context))
         resp.set_cookie('mail_id', mail_id, timedelta(minutes=16))
         return resp
     return error(500, 'custom', ['Beim Versenden der Verifikations-E-Mail ist ein Fehler aufgetreten. Bitte '
@@ -680,10 +670,10 @@ def route_konto_registrieren2():
 
 @app.route('/konto/registrieren3', methods=['POST'])
 def route_konto_registrieren3():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if signed_in:
+    if context['signed_in']:
         return redirect('/')
     random_sleep()
     form = dict(request.form)
@@ -719,20 +709,20 @@ def route_konto_registrieren3():
 
 @app.route('/konto/anmelden', methods=['GET'])
 def route_konto_anmelden():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if signed_in:
+    if context['signed_in']:
         return redirect('/')
-    return render_template('konto_anmelden.html', account=name, signed_in=signed_in, theme=theme)
+    return render_template('konto_anmelden.html', **context)
 
 
 @app.route('/konto/anmelden2', methods=['POST'])
 def route_konto_anmelden2():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if signed_in:
+    if context['signed_in']:
         return redirect('/')
     random_sleep()
     form = dict(request.form)
@@ -767,10 +757,10 @@ def route_konto_anmelden2():
 
 @app.route('/konto/abmelden', methods=['GET'])
 def route_konto_abmelden():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if 'qILs7nxM' in request.cookies and signed_in:
+    if 'qILs7nxM' in request.cookies and context['signed_in']:
         query_db('DELETE FROM login WHERE id=?', (request.cookies['qILs7nxM'],))
     resp = make_response(redirect('/'))
     resp.delete_cookie('qILs7nxM')
@@ -779,31 +769,25 @@ def route_konto_abmelden():
 
 @app.route('/konto/einstellungen', methods=['GET'])
 def route_konto_einstellungen():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if not signed_in:
-        return redirect('/konto/anmelden')
-    result = query_db('SELECT newsletter, theme, iframe, payment, search_engine, class, grade FROM account WHERE id=?',
-                      (acc,), True)
-    if not result:
+    if not context['signed_in']:
         return redirect('/konto/anmelden')
     try:
         scale = int(request.cookies.get('scale-factor', '1.0'))
     except ValueError:
         scale = 1.0
-    return render_template('konto_einstellungen.html', account=name, signed_in=signed_in, theme=theme, acc=acc,
-                           remaining=result[3], iframes=result[2], scale=str(scale * 100), newsletter=result[0],
-                           themes=list(_THEMES.keys()), search_engine=result[4], engines=list(_SEARCH_ENGINES.keys()),
-                           grades=_GRADES, class_=result[5], grade=result[6])
+    return render_template('konto_einstellungen.html', **context, themes=list(_THEMES.keys()),
+                           engines=list(_SEARCH_ENGINES.keys()), grades=_GRADES, scale=str(scale * 100))
 
 
 @app.route('/konto/einstellungen/<path:path>', methods=['GET', 'POST'])
 def route_konto_einstellungen_(path: str):
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if not signed_in:
+    if not context['signed_in']:
         return redirect('/konto/anmelden')
     setting = path.split('/')
     match setting[0]:
@@ -825,7 +809,7 @@ def route_konto_einstellungen_(path: str):
                 if length > val[2]:
                     return error(422, 'custom', ['Ungültiges Eingabefeld',
                                                  f"Der Inhalt des Eingabefeldes '{val[0]}' ist zu lang."])
-            result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (acc,), True)
+            result = query_db('SELECT id, mail, salt, hash FROM account WHERE mail=?', (context['id'],), True)
             if not result:
                 return error(404)
             if hash_password(form['password'], result[2]) != result[3]:
@@ -833,7 +817,7 @@ def route_konto_einstellungen_(path: str):
                                                                   'versuchen Sie es erneut.'])
             salt = rand_salt()
             query_db('UPDATE account SET salt=?, hash=? WHERE id=?',
-                     (salt, hash_password(form['password-new'], salt), acc))
+                     (salt, hash_password(form['password-new'], salt), context['id']))
         case 'iframes':
             if len(setting) < 2:
                 return error(400)
@@ -843,7 +827,7 @@ def route_konto_einstellungen_(path: str):
                 value = 0
             else:
                 return error(400)
-            query_db('UPDATE account SET iframe=? WHERE id=?', (value, acc))
+            query_db('UPDATE account SET iframe=? WHERE id=?', (value, context['id']))
         case 'scale':
             form = dict(request.form)
             if 'scale' not in form:
@@ -866,21 +850,21 @@ def route_konto_einstellungen_(path: str):
                 value = 0
             else:
                 return error(400)
-            query_db('UPDATE account SET newsletter=? WHERE id=?', (value, acc))
+            query_db('UPDATE account SET newsletter=? WHERE id=?', (value, context['id']))
         case 'theme':
             if len(setting) < 2:
                 return error(400)
             if setting[1] not in _THEMES:
                 return error(400)
-            if not paid:
+            if not context['paid']:
                 return error(403, 'premium')
-            query_db('UPDATE account SET theme=? WHERE id=?', (setting[1], acc))
+            query_db('UPDATE account SET theme=? WHERE id=?', (setting[1], context['id']))
         case 'search_engine':
             if len(setting) < 2:
                 return error(400)
             if setting[1] not in _SEARCH_ENGINES:
                 return error(400)
-            query_db('UPDATE account SET search_engine=? WHERE id=?', (setting[1], acc))
+            query_db('UPDATE account SET search_engine=? WHERE id=?', (setting[1], context['id']))
         case 'class':
             form = dict(request.form)
             if 'class' not in form:
@@ -888,7 +872,7 @@ def route_konto_einstellungen_(path: str):
                                                                       f"nicht an den Server übermittelt."])
             if not(0 < len(form['class']) < 5):
                 return error(422, 'form-missing')
-            query_db('UPDATE account SET class=? WHERE id=?', (form['class'], acc))
+            query_db('UPDATE account SET class=? WHERE id=?', (form['class'], context['id']))
         case 'grade':
             form = dict(request.form)
             if 'grade' not in form:
@@ -896,7 +880,7 @@ def route_konto_einstellungen_(path: str):
                                                                       f"nicht an den Server übermittelt."])
             if form['grade'] not in _GRADES:
                 return error(422, 'form-missing')
-            query_db('UPDATE account SET grade=? WHERE id=?', (form['grade'], acc))
+            query_db('UPDATE account SET grade=? WHERE id=?', (form['grade'], context['id']))
         case _:
             return error(400)
     return redirect('/konto/einstellungen', 200)
@@ -909,8 +893,8 @@ def route_konto_einstellungen_(path: str):
 
 @app.route('/dokumente', methods=['GET'])
 def route_dokumente():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     class_ = request.args.get('klasse', default='', type=str)
     grade_ = request.args.get('klassenstufe', default='', type=str)
@@ -929,42 +913,40 @@ def route_dokumente():
             document[v] = val[i]
         document['owner'] = account_name(document['owner'])
         documents.append(document)
-    return render_template('dokumente.html', account=name, signed_in=signed_in, theme=theme, documents=documents,
-                           show_class=not bool(class_), show_grade=not bool(grade_))
+    return render_template('dokumente.html', **context, show_class=not bool(class_), show_grade=not bool(grade_))
 
 
 @app.route('/dokumente/vorschau/<string:doc_id>', methods=['GET'])
 def route_dokumente_vorschau(doc_id):
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     result1 = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created, extension, '
                        'size, mimetype FROM document WHERE id=?', (doc_id,), True)
     if not result1:
         return error(404)
     allow_iframe = False
-    if signed_in:
-        result2 = query_db('SELECT iframe FROM account WHERE id=?', (acc,), True)
-        allow_iframe = bool(result2[0])
+    if context['signed_in']:
+        allow_iframe = bool(context['iframe'])
     iframe_available = True  # temporary
     download = f"{secure_filename(result1[0])}.{result1[9]}"
     comments = []
     result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (doc_id,))
     for i in result3:
         comments.append([account_name(i[2]), i[3], i[0], i[1]])
-    return render_template('dokumente_vorschau.html', account=name, signed_in=signed_in, theme=theme,
-                           subject=result1[1], name=result1[0], extension=result1[9].upper(), size=result1[10],
-                           edited1=result1[7].split('_')[0], edited2=result1[7].split('_')[1].replace('-', ':'),
-                           created1=result1[8].split('_')[0], created2=result1[8].split('_')[1].replace('-', ':'),
-                           author=account_name(result1[6]), class_=result1[3], grade=result1[4], language=result1[5],
-                           document_id=doc_id, download=download, allow_iframe=allow_iframe,
-                           iframe_available=iframe_available, comments=comments, description=result1[2])
+    return render_template('dokumente_vorschau.html', **context, subject=result1[1], title=result1[0],
+                           extension=result1[9].upper(), size=result1[10], edited1=result1[7].split('_')[0],
+                           edited2=result1[7].split('_')[1].replace('-', ':'), created1=result1[8].split('_')[0],
+                           created2=result1[8].split('_')[1].replace('-', ':'), author=account_name(result1[6]),
+                           doc_class=result1[3], doc_grade=result1[4], doc_language=result1[5], document_id=doc_id,
+                           download=download, allow_iframe=allow_iframe, iframe_available=iframe_available,
+                           comments=comments, description=result1[2])
 
 
 @app.route('/dokumente/dokument/<string:doc_id>/<path:_>', methods=['GET'])
 def route_dokumente_dokument(doc_id, _):
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     result = query_db('SELECT mimetype FROM document WHERE id=?', (doc_id,))
     if not result:
@@ -976,21 +958,21 @@ def route_dokumente_dokument(doc_id, _):
 
 @app.route('/dokumente/neu', methods=['GET'])
 def route_dokumente_neu():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(3, banned):
+    context = create_context(request.cookies)
+    if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
-    return render_template('dokumente_neu.html', account=name, signed_in=signed_in, theme=theme,
-                           subjects=_SUBJECTS.items(), languages=_LANGUAGES, grades=_GRADES)
+    return render_template('dokumente_neu.html', **context, subjects=_SUBJECTS.items(), languages=_LANGUAGES,
+                           grades=_GRADES)
 
 
 @app.route('/dokumente/neu/post', methods=['POST'])
 def route_dokumente_neu_post():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(3, banned):
+    context = create_context(request.cookies)
+    if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
     form = dict(request.form)
     for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
@@ -1025,41 +1007,41 @@ def route_dokumente_neu_post():
     size = f"{file_size} {_SIZE_UNITS[exponent]}"
     query_db('INSERT INTO document VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
              (doc_id, form['title'], form['subject'], form['description'], form['class'], form['grade'],
-              form['language'], acc, get_current_time(), get_current_time(), extension, mimetype, size))
+              form['language'], context['id'], get_current_time(), get_current_time(), extension, mimetype, size))
     return redirect(f"/dokumente/vorschau/{doc_id}")
 
 
 @app.route('/dokumente/bearbeiten', methods=['GET'])
 def route_dokumente_bearbeiten():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(3, banned):
+    context = create_context(request.cookies)
+    if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
     doc_id = request.args.get('id', '', str)
     result = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created, extension, '
                       'size, mimetype FROM document WHERE id=?', (doc_id,), True)
     if not result:
         return error(404)
-    if result[6] != acc:
+    if result[6] != context['id']:
         return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
-    return render_template('dokumente_bearbeiten.html', account=name, signed_in=signed_in, theme=theme,
-                           subject=result[1], title=result[0], class_=result[3], grade=result[4], language=result[5],
-                           document_id=doc_id, description=result[2])
+    return render_template('dokumente_bearbeiten.html', **context, subject=result[1], title=result[0],
+                           doc_class=result[3], doc_grade=result[4], doc_language=result[5], document_id=doc_id,
+                           description=result[2])
 
 
 @app.route('/dokumente/bearbeiten/post', methods=['GET'])
 def route_dokumente_bearbeiten_post():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(3, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [3])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
     doc_id = request.args.get('id', '', str)
     result = query_db('SELECT owner, created FROM document WHERE id=?', (doc_id,), True)
     if not result:
         return error(404)
-    if result[0] != acc:
+    if result[0] != context['id']:
         return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
     form = dict(request.form)
     for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
@@ -1100,23 +1082,23 @@ def route_dokumente_bearbeiten_post():
 
 @app.route('/dokumente/klasse', methods=['GET'])
 def route_dokumente_klasse():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
-    result = query_db('SELECT class FROM account WHERE id=?', (acc,), True)
+    result = query_db('SELECT class FROM account WHERE id=?', (context['id'],), True)
     return redirect(f"/dokumente?klasse={result[0]}")
 
 
 @app.route('/dokumente/klassenstufe', methods=['GET'])
 def route_dokumente_klassenstufe():
-    signed_in, acc, name, theme, paid, banned = account(request.cookies)
-    if is_banned(0, banned):
+    context = create_context(request.cookies)
+    if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if not signed_in:
+    if not context['signed_in']:
         return error(401, 'account')
-    result = query_db('SELECT grade FROM account WHERE id=?', (acc,), True)
+    result = query_db('SELECT grade FROM account WHERE id=?', (context['id'],), True)
     return redirect(f"/dokumente?klassenstufe={result[0]}")
 
 

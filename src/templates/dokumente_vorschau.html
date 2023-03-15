@@ -1,11 +1,11 @@
 {% extends '_base.html' %}
 
 {% block main %}
-    <h2 class="center">[{{ subject }}] {{ name }}</h2>
+    <h2 class="center">[{{ subject }}] {{ title }}</h2>
     <p class="center"><b>{{ extension }} {{ size }}</b>&emsp;Zuletzt bearbeitet am <b>{{ edited1 }}</b> um
         {{ edited2 }} Uhr&emsp;Erstellt am <b>{{ created1 }}</b> um {{ created2 }} Uhr&emsp;Hochgeladen von
         <b><i>{{ author }}</i></b></p>
-    <p><small>Klasse: {{ class_ }}&emsp;Klassenstufe: {{ grade }}&emsp;Sprache: {{ language }}&emsp;ID: <i>#{{ document_id }}</i></small></p>
+    <p><small>Klasse: {{ doc_class }}&emsp;Klassenstufe: {{ doc_grade }}&emsp;Sprache: {{ doc_language }}&emsp;ID: <i>#{{ document_id }}</i></small></p>
     <p class="center">
         <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" download="{{ download }}">Herunterladen</a> &emsp;
         <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" target="_blank">In neuem Tab öffnen</a> &emsp;

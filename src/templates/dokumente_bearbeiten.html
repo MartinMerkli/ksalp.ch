@@ -25,19 +25,19 @@
                 <label for="dokumente-neu_input_language">Sprache: </label>
                 <select id="dokumente-neu_input_language" name="language" required class="input-text">
                     {% for element in languages %}
-                        <option value="{{ element[0] }}" {% if element[0] == language %}selected{% endif %}>{{ element[1] }}</option>
+                        <option value="{{ element[0] }}" {% if element[0] == doc_language %}selected{% endif %}>{{ element[1] }}</option>
                     {% endfor %}
                 </select>
             </p>
             <p>
                 <label for="dokumente-neu_input_class">Klasse (oder '-'): </label>
-                <input type="text" id="dokumente-neu_input_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ class_ }}">
+                <input type="text" id="dokumente-neu_input_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ doc_class }}">
             </p>
             <p>
                 <label for="dokumente-neu_input_grade">Klassenstufe (oder '-'): </label>
                 <select id="dokumente-neu_input_grade" name="grade" required class="input-text">
                     {% for element in grades %}
-                        <option value="{{ element }}" {% if element == grade %}selected{% endif %}>{{ element }}</option>
+                        <option value="{{ element }}" {% if element == doc_grade %}selected{% endif %}>{{ element }}</option>
                     {% endfor %}
                 </select>
             </p>

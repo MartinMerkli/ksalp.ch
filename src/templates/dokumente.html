@@ -6,7 +6,7 @@
         let dokumente__documents = {{ documents|safe }};
     </script>
     <h2 class="center">Dokumente</h2>
-    {% if is_signed_in %}
+    {% if signed_in %}
         <p><a href="/dokumente/neu">Dokument hochladen</a></p>
     {% else %}
         <p>Sie müssen angemeldet sein, um Dokumente hochladen zu können.</p>

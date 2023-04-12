@@ -222,9 +222,9 @@ def rand_salt():
 ########################################################################################################################
 
 
-def is_signed_in(cookies):
-    if 'qILs7nxM' in cookies:
-        result = query_db('SELECT valid, browser FROM login WHERE id = ?', (cookies['qILs7nxM'],), True)
+def is_signed_in(session_cookie):
+    if 'account' in session_cookie:
+        result = query_db('SELECT valid, browser FROM login WHERE id = ?', (session_cookie['account'],), True)
         if not result:
             return False
         if result[0] >= get_current_time() and extract_browser(request.user_agent) == result[1]:
@@ -232,10 +232,10 @@ def is_signed_in(cookies):
     return False
 
 
-def account(cookies):
+def account(session_cookie):
     unavailable = (False, None, '', 'hell', False, '____')
-    if 'qILs7nxM' in cookies:
-        result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
+    if 'account' in session_cookie:
+        result1 = query_db('select valid, account from login where id = ?', (session_cookie['account'],), True)
         if not result1:
             return unavailable
         if result1[0] < get_current_time():
@@ -262,7 +262,7 @@ def account_name(acc):
     return result[0]
 
 
-def create_context(cookies):
+def create_context(session_cookie):
     context = {
         'signed_in': False,
         'id': '',
@@ -280,8 +280,8 @@ def create_context(cookies):
         'class_': '',
         'grade': ''
     }
-    if 'qILs7nxM' in cookies:
-        result1 = query_db('select valid, account from login where id = ?', (cookies['qILs7nxM'],), True)
+    if 'account' in session_cookie:
+        result1 = query_db('select valid, account from login where id = ?', (session_cookie['account'],), True)
         if not result1:
             return context
         if result1[0] < get_current_time():
@@ -318,12 +318,12 @@ def hash_ip(ip):
     return urlsafe_b64encode(sha256(bytes(map(int, ip.split('.')))).digest()).decode()
 
 
-def scan_request(r):
+def scan_request(r, session_cookie):
     ip = r.access_route[-1]
     user_agent = r.user_agent.string
     path = r.full_path
     if r.remote_addr not in ['127.0.0.1', '0.0.0.0', None]:
-        access_log.info(f'{hash_ip(ip)}\t{0}\t{int(is_signed_in(r.cookies))}\t{r.method}\t{path}\t{user_agent}')
+        access_log.info(f'{hash_ip(ip)}\t{0}\t{int(is_signed_in(session_cookie))}\t{r.method}\t{path}\t{user_agent}')
         return 0
     score = query_db('SELECT score, address FROM ipv4 WHERE address = ?', (ip,), True)
     if not score:
@@ -348,7 +348,7 @@ def scan_request(r):
     if before != score:
         query_db('UPDATE ipv4 SET score = ? WHERE address = ?', (score, ip))
 
-    access_log.info(f'{hash_ip(ip)}\t{score}\t{int(is_signed_in(r.cookies))}\t{r.method}\t{path}\t{user_agent}')
+    access_log.info(f'{hash_ip(ip)}\t{score}\t{int(is_signed_in(session_cookie))}\t{r.method}\t{path}\t{user_agent}')
     return score
 
 
@@ -484,7 +484,7 @@ def error(code, event='_', args=None):
 def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(days=92)
-    score = scan_request(request)
+    score = scan_request(request, session)
     if score == 0:
         return render_template('_banned.html', ip=request.access_route[-1]), 403
 
@@ -529,7 +529,7 @@ def route_stylesheets(theme):
 
 @app.route('/', methods=['GET'])
 def root():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     return render_template('_root.html', **context)
@@ -537,7 +537,7 @@ def root():
 
 @app.route('/search', methods=['POST'])
 def route_search():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not form_require(['q'], request.form):
@@ -548,7 +548,7 @@ def route_search():
 
 @app.route('/neuigkeiten', methods=['GET'])
 def route_neuigkeiten():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     return render_template('neuigkeiten.html', **context)
@@ -556,7 +556,7 @@ def route_neuigkeiten():
 
 @app.route('/melden', methods=['GET'])
 def route_melden():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     type_ = request.args.get('typ', '', type=str)
@@ -573,7 +573,7 @@ def route_melden():
 
 @app.route('/kommentar/neu', methods=['POST'])
 def route_kommentar_neu():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(2, context['banned']):
         return error(403, 'banned', [0])
     if not context['signed_in']:
@@ -602,7 +602,7 @@ def route_kommentar_neu():
 
 @app.route('/konto/registrieren', methods=['GET'])
 def route_konto_registrieren():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if context['signed_in']:
@@ -612,7 +612,7 @@ def route_konto_registrieren():
 
 @app.route('/konto/registrieren2', methods=['POST'])
 def route_konto_registrieren2():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if context['signed_in']:
@@ -677,7 +677,7 @@ def route_konto_registrieren2():
 
 @app.route('/konto/registrieren3', methods=['POST'])
 def route_konto_registrieren3():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if context['signed_in']:
@@ -716,7 +716,7 @@ def route_konto_registrieren3():
 
 @app.route('/konto/anmelden', methods=['GET'])
 def route_konto_anmelden():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if context['signed_in']:
@@ -726,7 +726,7 @@ def route_konto_anmelden():
 
 @app.route('/konto/anmelden2', methods=['POST'])
 def route_konto_anmelden2():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if context['signed_in']:
@@ -764,7 +764,7 @@ def route_konto_anmelden2():
 
 @app.route('/konto/abmelden', methods=['GET'])
 def route_konto_abmelden():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if 'qILs7nxM' in request.cookies and context['signed_in']:
@@ -776,7 +776,7 @@ def route_konto_abmelden():
 
 @app.route('/konto/einstellungen', methods=['GET'])
 def route_konto_einstellungen():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not context['signed_in']:
@@ -791,7 +791,7 @@ def route_konto_einstellungen():
 
 @app.route('/konto/einstellungen/<path:path>', methods=['GET', 'POST'])
 def route_konto_einstellungen_(path: str):
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not context['signed_in']:
@@ -900,7 +900,7 @@ def route_konto_einstellungen_(path: str):
 
 @app.route('/dokumente', methods=['GET'])
 def route_dokumente():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     class_ = request.args.get('klasse', default='', type=str)
@@ -925,7 +925,7 @@ def route_dokumente():
 
 @app.route('/dokumente/vorschau/<string:doc_id>', methods=['GET'])
 def route_dokumente_vorschau(doc_id):
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     result1 = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created, extension, '
@@ -952,7 +952,7 @@ def route_dokumente_vorschau(doc_id):
 
 @app.route('/dokumente/dokument/<string:doc_id>/<path:_>', methods=['GET'])
 def route_dokumente_dokument(doc_id, _):
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     result = query_db('SELECT mimetype FROM document WHERE id=?', (doc_id,))
@@ -965,7 +965,7 @@ def route_dokumente_dokument(doc_id, _):
 
 @app.route('/dokumente/neu', methods=['GET'])
 def route_dokumente_neu():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
     if not context['signed_in']:
@@ -976,7 +976,7 @@ def route_dokumente_neu():
 
 @app.route('/dokumente/neu/post', methods=['POST'])
 def route_dokumente_neu_post():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
     if not context['signed_in']:
@@ -1020,7 +1020,7 @@ def route_dokumente_neu_post():
 
 @app.route('/dokumente/bearbeiten', methods=['GET'])
 def route_dokumente_bearbeiten():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
     if not context['signed_in']:
@@ -1039,7 +1039,7 @@ def route_dokumente_bearbeiten():
 
 @app.route('/dokumente/bearbeiten/post', methods=['GET'])
 def route_dokumente_bearbeiten_post():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [3])
     if not context['signed_in']:
@@ -1089,7 +1089,7 @@ def route_dokumente_bearbeiten_post():
 
 @app.route('/dokumente/klasse', methods=['GET'])
 def route_dokumente_klasse():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not context['signed_in']:
@@ -1100,7 +1100,7 @@ def route_dokumente_klasse():
 
 @app.route('/dokumente/klassenstufe', methods=['GET'])
 def route_dokumente_klassenstufe():
-    context = create_context(request.cookies)
+    context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
     if not context['signed_in']:

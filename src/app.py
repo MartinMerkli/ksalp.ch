@@ -43,6 +43,13 @@ with open(join(app.root_path, 'resources', 'key.bin'), 'rb') as _f:
     _secret_key = _f.read()
 app.secret_key = _secret_key
 
+app.config.update(
+    SESSION_COOKIE_NAME='__Host-session',
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE='Strict'
+)
+
 
 ########################################################################################################################
 # LOGGING

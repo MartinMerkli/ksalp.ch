@@ -4,6 +4,8 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
+    server_tokens off;
+
     location / {
         return 301 https://$host$request_uri;
     }
@@ -21,6 +23,8 @@ server {
 
     ssl_stapling on;
     ssl_stapling_verify on;
+
+    server_tokens off;
 
     ssl_trusted_certificate /etc/letsencrypt/live/ksalp.ch/fullchain.pem;
 

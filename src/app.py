@@ -496,7 +496,9 @@ def before_request():
 
 @app.route('/src/<path:file>', methods=['GET'])
 def route_src(file):
-    return send_from_directory(join(app.root_path, 'src'), file)
+    resp = send_from_directory(join(app.root_path, 'src'), file)
+    resp.mimetype = type_from_file(join(app.root_path, 'src', file), mime=True)
+    return resp
 
 
 @app.route('/stylesheets/<theme>', methods=['GET'])

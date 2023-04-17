@@ -66,3 +66,36 @@ von <i>${dokumente__documents[i]['owner']}</i></p></div>`;
     }
     $('dokumente_box').innerHTML = content;
 }
+const dokumente__dataset = document.currentScript.dataset;
+let dokumente__response;
+if (dokumente__dataset['class'] !== ''){
+    dokumente__response = await fetch('/dokumente/dokuments.json?class=' + dokumente__dataset['class']);
+} else if (dokumente__dataset['grade'] !== ''){
+    dokumente__response = await fetch('/dokumente/dokuments.json?grade=' + dokumente__dataset['grade']);
+} else {
+    dokumente__response = await fetch('/dokumente/dokuments.json');
+}
+let dokumente__documents = await dokumente__response.json();
+window.addEventListener('DOMContentLoaded', function (){
+    function $_(id){
+        return document.getElementById(id);
+    }
+    dokumente__sort('edited', true);
+    const dokumente__id_list = ['title', 'class', 'grade', 'subject', 'language', 'extension', 'owner',
+        'time1-start', 'time1-end', 'time2-start', 'time2-end'];
+    for (let i=0; i < dokumente__id_list.length; i++) {
+        $_('dokumente_input_' + dokumente__id_list[i]).addEventListener('keyup', dokumente__reload, false);
+    }
+    $_('dokumente_sort_edited-t').addEventListener('click', function () {
+        dokumente__sort('edited', true);
+    }, false);
+    $_('dokumente_sort_edited-f').addEventListener('click', function () {
+        dokumente__sort('edited', false);
+    }, false);
+    $_('dokumente_sort_created-t').addEventListener('click', function () {
+        dokumente__sort('created', true);
+    }, false);
+    $_('dokumente_sort_created-f').addEventListener('click', function () {
+        dokumente__sort('created', false);
+    }, false);
+}, false);

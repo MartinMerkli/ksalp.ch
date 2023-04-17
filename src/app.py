@@ -9,7 +9,7 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import Flask, g, make_response, redirect, render_template, request, send_from_directory, session
+from flask import Flask, g, jsonify, make_response, redirect, render_template, request, send_from_directory, session
 from hashlib import pbkdf2_hmac, sha256
 from httpanalyzer import FlaskRequest as AnalyzerRequest
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
@@ -907,6 +907,14 @@ def route_dokumente():
         return error(403, 'banned', [0])
     class_ = request.args.get('klasse', default='', type=str)
     grade_ = request.args.get('klassenstufe', default='', type=str)
+    return render_template('dokumente.html', **context, show_class=not bool(class_), show_grade=not bool(grade_),
+                           class_=class_, grade_=grade_)
+
+
+@app.route('/dokumente/documents.json', methods=['GET'])
+def route_dokumente_documents():
+    class_ = request.args.get('class', default='', type=str)
+    grade_ = request.args.get('grade', default='', type=str)
     indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created',
                'extension', 'size']
     if class_:
@@ -922,7 +930,7 @@ def route_dokumente():
             document[v] = val[i]
         document['owner'] = account_name(document['owner'])
         documents.append(document)
-    return render_template('dokumente.html', **context, show_class=not bool(class_), show_grade=not bool(grade_))
+    return jsonify(documents)
 
 
 @app.route('/dokumente/vorschau/<string:doc_id>', methods=['GET'])

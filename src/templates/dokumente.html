@@ -1,10 +1,7 @@
 {% extends '_base.html' %}
 
 {% block main %}
-    <script src="/src/scripts/dokumente.js"></script>
-    <script>
-        let dokumente__documents = {{ documents|safe }};
-    </script>
+    <script data-class="{{ class_ }}" data-grade="{{ grade_ }}" src="/src/scripts/dokumente.js"></script>
     <h2 class="center">Dokumente</h2>
     {% if signed_in %}
         <p><a href="/dokumente/neu">Dokument hochladen</a></p>
@@ -13,30 +10,28 @@
     {% endif %}
     <h3> &ensp; &ensp; Sortieren</h3>
     <div>
-        <a href="#" class="footer-link" onclick="dokumente__sort('edited', true)">Zuletzt bearbeitet</a> &ensp;
-        <a href="#" class="footer-link" onclick="dokumente__sort('edited', false)">Zuletzt bearbeitet <small><i>[invertiert]</i></small></a> &ensp;
-        <a href="#" class="footer-link" onclick="dokumente__sort('created', true)">Zuletzt erstellt</a> &ensp;
-        <a href="#" class="footer-link" onclick="dokumente__sort('created', false)">Zuletzt erstellt <small><i>[invertiert]</i></small></a> &ensp;
+        <a href="#" class="footer-link" id="dokumente_sort_edited-t">Zuletzt bearbeitet</a> &ensp;
+        <a href="#" class="footer-link" id="dokumente_sort_edited-f">Zuletzt bearbeitet <small><i>[invertiert]</i></small></a> &ensp;
+        <a href="#" class="footer-link" id="dokumente_sort_created-t">Zuletzt erstellt</a> &ensp;
+        <a href="#" class="footer-link" id="dokumente_sort_created-f">Zuletzt erstellt <small><i>[invertiert]</i></small></a> &ensp;
     </div>
     <h3> &ensp; &ensp; Filter</h3>
     <div>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Titel" id="dokumente_input_title"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Titel" id="dokumente_input_title"></label>
         {% if show_class %}
-            <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Klasse" id="dokumente_input_class"></label>
+            <label><input type="text" class="dokumente_filter" placeholder="Klasse" id="dokumente_input_class"></label>
         {% endif %}
         {% if show_grade %}
-            <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Klassenstufe" id="dokumente_input_grade"></label>
+            <label><input type="text" class="dokumente_filter" placeholder="Klassenstufe" id="dokumente_input_grade"></label>
         {% endif %}
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Fach" id="dokumente_input_subject"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Sprache" id="dokumente_input_language"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Dateityp" id="dokumente_input_extension"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="Ersteller*in" id="dokumente_input_owner"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="später erstellt als" id="dokumente_input_time1-start"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="früher erstellt als" id="dokumente_input_time1-end"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="später bearbeitet als" id="dokumente_input_time2-start"></label>
-        <label><input type="text" class="dokumente_filter" onkeyup="dokumente__reload()" placeholder="früher bearbeitet als" id="dokumente_input_time2-end"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Fach" id="dokumente_input_subject"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Sprache" id="dokumente_input_language"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Dateityp" id="dokumente_input_extension"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Ersteller*in" id="dokumente_input_owner"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="später erstellt als" id="dokumente_input_time1-start"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="früher erstellt als" id="dokumente_input_time1-end"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="später bearbeitet als" id="dokumente_input_time2-start"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="früher bearbeitet als" id="dokumente_input_time2-end"></label>
     </div>
     <div class="dokumente_box" id="dokumente_box"></div>
 {% endblock %}
-
-{% block onload %}dokumente__sort('edited', true);{% endblock %}

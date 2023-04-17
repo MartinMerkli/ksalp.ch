@@ -6,13 +6,13 @@
     <link rel="stylesheet" href="/stylesheets/{{ theme }}.css">
     <script src="/src/scripts/navbar.js"></script>
 </head>
-<body onload="{% block onload %}{% endblock %}">
+<body>
 <div class="header">
-    <p>&ensp;<a href="#" class="navbar-link" onclick="navbar_menu()">&#9776;</a>
+    <p>&ensp;<a href="#" class="navbar-link" id="navbar-menu_0">&#9776;</a>
     <span>ksalp.ch</span></p>
 </div>
 <div class="navbar" id="navbar">
-    <p class="navbar-mobile">&ensp;<a href="#" class="navbar-link" onclick="navbar_menu()">&#9587;</a>&emsp;
+    <p class="navbar-mobile">&ensp;<a href="#" class="navbar-link" id="navbar-menu_1">&#9587;</a>&emsp;
         {% if signed_in %}
             <small>Angemeldet als <i>{{ account }}</i></small>
         {% else %}
@@ -23,7 +23,7 @@
     <ul class="navbar-list">
         <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/" class="navbar-link">Startseite</a></li>
         <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/neuigkeiten" class="navbar-link">Neuigkeiten</a></li>
-        <li class="navbar-element"><span id="navbar-prefix_documents">&#129170; </span><a href="#" class="navbar-link" onclick="navbar_button('documents')">Dokumente</a></li>
+        <li class="navbar-element"><span id="navbar-prefix_documents">&#129170; </span><a href="#" class="navbar-link" id="navbar-button_documents">Dokumente</a></li>
         <li><ul class="navbar-second-list" id="navbar-list_documents" style="display: none">
             <li class="navbar-second-element"><a href="/dokumente" class="navbar-second-link">Alle</a></li>
             {% if signed_in %}
@@ -39,7 +39,7 @@
             <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/anmelden" class="navbar-link">Anmelden</a></li>
             <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/registrieren" class="navbar-link">Registrieren</a></li>
         {% endif %}
-        <li class="navbar-element"><span id="navbar-prefix_about">&#129170; </span><a href="#" class="navbar-link" onclick="navbar_button('about')">Über</a></li>
+        <li class="navbar-element"><span id="navbar-prefix_about">&#129170; </span><a href="#" class="navbar-link" id="navbar-button_about">Über</a></li>
         <li><ul class="navbar-second-list" id="navbar-list_about" style="display: none">
             <li class="navbar-second-element"><a href="/über/team" class="navbar-second-link">das Team</a></li>
             <li class="navbar-second-element"><a href="/über/kontakt" class="navbar-second-link">Kontakt</a></li>

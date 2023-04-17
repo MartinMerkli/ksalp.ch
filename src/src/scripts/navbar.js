@@ -20,3 +20,13 @@ function navbar_menu(){
         selector.style.display = '';
     }
 }
+window.addEventListener('DOMContentLoaded', function (){
+    $('navbar-menu_0').addEventListener('click', navbar_menu, false)
+    $('navbar-menu_1').addEventListener('click', navbar_menu, false)
+    $('navbar-button_documents').addEventListener('click', function () {
+        navbar_button('documents')
+    }, false)
+    $('navbar-button_about').addEventListener('click', function () {
+        navbar_button('about')
+    }, false)
+}, false)

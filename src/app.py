@@ -670,9 +670,8 @@ def route_konto_registrieren2():
     if send_mail(form['mail'], 'E-Mail Verifikation [ksalp.ch]', f"Ihr Code lautet: {code}",
                  f"<html><head><meta charset=\"UTF-8\"></head><body><h1>Ihr Code lautet: {code}</h1>"
                  f"<p>Dieser Code ist 15 Minuten gültig</p></body></html>") is None:
-        resp = make_response(render_template('konto_registrieren2.html', **context))
-        resp.set_cookie('mail_id', mail_id, timedelta(minutes=16))
-        return resp
+        session['mail_id'] = mail_id
+        return render_template('konto_registrieren2.html', **context)
     return error(500, 'custom', ['Beim Versenden der Verifikations-E-Mail ist ein Fehler aufgetreten. Bitte '
                                  'kontaktieren Sie den*die Betreiber*in, damit dieser Fehler behoben werden kann.'])
 
@@ -688,11 +687,11 @@ def route_konto_registrieren3():
     form = dict(request.form)
     if 'code' not in form:
         return error(400, 'custom', 'Das Eingabefeld \'Code\' wurde nicht an den Server übermittelt.')
-    if 'mail_id' not in request.cookies:
+    if 'mail_id' not in session:
         return error(400, 'custom', 'Das Cookie \'mail_id\' konnte nicht gefunden werden. Bitte kontrollieren Sie, '
                                     'dass Cookies aktiviert sind und versuchen Sie den Registrationsprozess erneut.')
     result = query_db('SELECT id, name, mail, salt, hash, newsletter, valid, code, class, grade FROM mail WHERE id=?',
-                      (request.cookies['mail_id'],), True)
+                      (session['mail_id'],), True)
     if not result:
         return error(404, 'custom', ['ID nicht gefunden', 'Einen Datenbank-Eintrag mit der ID, welche in Ihren '
                                                           'Cookies spezifiziert ist, konnte nicht gefunden werden.'])
@@ -702,7 +701,7 @@ def route_konto_registrieren3():
     if result[7] != form['code']:
         return error(400, 'custom', ['Falscher Code', 'Der Verifikations-Code stimmt nicht überein. Bitte versuchen'
                                                       ' Sie es erneut.'])
-    query_db('UPDATE mail SET valid=? WHERE id=?', ('0000-00-00_00-00-00', request.cookies['mail_id']))
+    query_db('UPDATE mail SET valid=? WHERE id=?', ('0000-00-00_00-00-00', session['mail_id']))
     acc_id = rand_base64(8)
     query_db('INSERT INTO account VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
              (acc_id, result[1], result[2], result[3], result[4], result[5], get_current_time(),

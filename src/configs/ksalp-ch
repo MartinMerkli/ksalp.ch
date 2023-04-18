@@ -36,7 +36,7 @@ server {
     allow all;
 
     location /error_www/ {
-        root /var/www/ksalp-ch/;
+        alias /var/www/ksalp-ch/;
     }
 
     location / {

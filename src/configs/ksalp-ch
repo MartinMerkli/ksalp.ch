@@ -20,6 +20,7 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
 
     add_header Strict-Transport-Security "max-age=63072000" always;
+    add_header X-Content-Type-Options "nosniff" always;
 
     ssl_stapling on;
     ssl_stapling_verify on;

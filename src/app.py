@@ -711,9 +711,8 @@ def route_konto_registrieren3():
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
              (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
-    resp = make_response(redirect('/'))
-    resp.set_cookie('qILs7nxM', login, timedelta(days=64))
-    return resp
+    session['account'] = login
+    return redirect('/')
 
 
 @app.route('/konto/anmelden', methods=['GET'])
@@ -759,9 +758,8 @@ def route_konto_anmelden2():
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
              (login, result[0], (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
-    resp = make_response(redirect('/'))
-    resp.set_cookie('qILs7nxM', login, timedelta(days=64))
-    return resp
+    session['account'] = login
+    return redirect('/')
 
 
 @app.route('/konto/abmelden', methods=['GET'])

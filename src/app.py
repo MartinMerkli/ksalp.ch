@@ -510,17 +510,14 @@ def route_stylesheets(theme):
         template = f.read()
     for i in _THEMES[theme]:
         template = template.replace(f"§{i}§", _THEMES[theme][i])
-    set_cookie = False
     try:
         scale = int(request.cookies.get('scale-factor', '1.0'))
     except ValueError:
         scale = 1.0
-        set_cookie = True
+        session['scale-factor'] = str(scale)
     template = template.replace('§scale§', str(scale))
     resp = make_response(template, 200)
     resp.mimetype = 'text/css'
-    if set_cookie:
-        resp.set_cookie('scale-factor', str(scale))
     return resp
 
 
@@ -844,9 +841,8 @@ def route_konto_einstellungen_(path: str):
             except ValueError:
                 return error(400, 'custom', ['Ungültiger Wert', f"Der Wert des Eingabefeldes 'Skalierungsfaktor' kann "
                                                                 f"nicht verstanden werden."])
-            resp = make_response(redirect('/konto/einstellungen', 200))
-            resp.set_cookie('scale-factor', str(scale / 100))
-            return resp
+            session['scale-factor'] = str(scale / 100)
+            return make_response(redirect('/konto/einstellungen', 200))
         case 'newsletter':
             if len(setting) < 2:
                 return error(400)

@@ -11,3 +11,4 @@ python-magic==0.4.27
 setuptools==67.6.1
 Werkzeug==2.2.3
 wheel==0.40.0
+gunicorn==20.1.0

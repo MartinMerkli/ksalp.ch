@@ -12,3 +12,13 @@ function konto_einstellungen__password_match(){
         password_repeat.setCustomValidity('Passwörter sind unterschiedlich.');
     }
 }
+window.addEventListener('DOMContentLoaded', function () {
+    function $_(id) {
+        return document.getElementById(id);
+    }
+    $_('konto-einstellungen_password-new').addEventListener('keyup', function () {
+        konto_einstellungen__password_check();
+        konto_einstellungen__password_match();
+    }, false);
+    $_('konto-einstellungen_password-new-repeat').addEventListener('keyup', konto_einstellungen__password_match, false);
+}, false);

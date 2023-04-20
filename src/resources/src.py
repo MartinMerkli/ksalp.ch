@@ -71,9 +71,9 @@ SEARCH_ENGINES = {
         'favicon': 'https://www.startpage.com/sp/cdn/favicons/favicon--default.ico'
     },
     'SearXNG': {
-        'url': 'https://searx.be/search?q=%s',
+        'url': 'https://search.gcomm.ch/search?q=%s&language=de-CH',
         'recommended': True,
-        'favicon': 'https://searx.be/favicon.ico'
+        'favicon': 'https://search.gcomm.ch/favicon.ico'
     },
     'WolframAlpha': {
         'url': 'https://www.wolframalpha.com/input?i=%s',

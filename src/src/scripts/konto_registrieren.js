@@ -12,3 +12,13 @@ function konto_registrieren__password_match(){
         password_repeat.setCustomValidity('Passwörter sind unterschiedlich.');
     }
 }
+window.addEventListener('DOMContentLoaded', function () {
+    function $_(id) {
+        return document.getElementById(id);
+    }
+    $_('konto-registrieren_password').addEventListener('keyup', function () {
+        konto_registrieren__password_check();
+        konto_registrieren__password_match();
+    }, false);
+    $_('konto-registrieren_password-repeat').addEventListener('keyup', konto_registrieren__password_match, false);
+}, false);

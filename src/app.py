@@ -476,7 +476,7 @@ def error(code, event='_', args=None):
 
 
 ########################################################################################################################
-# BEFORE REQUEST
+# BEFORE / AFTER REQUEST
 ########################################################################################################################
 
 
@@ -487,6 +487,12 @@ def before_request():
     score = scan_request(request, session)
     if score == 0:
         return render_template('_banned.html', ip=request.access_route[-1]), 403
+
+
+@app.after_request
+def after_request(response):
+    response.headers['server'] = 'nginx flask (GNU/Linux; ksalp.ch)'
+    return response
 
 
 ########################################################################################################################

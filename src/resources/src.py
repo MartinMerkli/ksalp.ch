@@ -31,6 +31,13 @@ EXTENSIONS = {
     'video/mpeg': 'MPEG',
     'video/webm': 'WEBM',
 }
+FILE_TYPES = {
+    'libraries/zxcvbn.js': 'text/javascript',
+    'scripts/dokumente.js': 'text/javascript',
+    'scripts/konto_einstellungen.js': 'text/javascript',
+    'scripts/konto_registrieren.js': 'text/javascript',
+    'scripts/navbar.js': 'text/javascript',
+}
 GRADES = [
     '-',
     '1',

@@ -19,8 +19,9 @@ from magic import from_file as type_from_file
 from os import environ, urandom
 from os.path import exists, getsize, join
 from random import randint, uniform
-from resources.src import EXTENSIONS as _EXTENSIONS, GRADES as _GRADES, LANGUAGES as _LANGUAGES, THEMES as _THEMES
-from resources.src import SEARCH_ENGINES as _SEARCH_ENGINES, SIZE_UNITS as _SIZE_UNITS, SUBJECTS as _SUBJECTS
+from resources.src import EXTENSIONS as _EXTENSIONS, FILE_TYPES as _FILE_TYPES, GRADES as _GRADES
+from resources.src import LANGUAGES as _LANGUAGES, THEMES as _THEMES, SEARCH_ENGINES as _SEARCH_ENGINES
+from resources.src import SIZE_UNITS as _SIZE_UNITS, SUBJECTS as _SUBJECTS
 from smtplib import SMTP
 from ssl import create_default_context
 from sqlite3 import connect as sqlite_connect
@@ -503,7 +504,10 @@ def after_request(response):
 @app.route('/src/<path:file>', methods=['GET'])
 def route_src(file):
     resp = send_from_directory(join(app.root_path, 'src'), file)
-    resp.mimetype = type_from_file(join(app.root_path, 'src', file), mime=True)
+    if file in _FILE_TYPES:
+        resp.mimetype = _FILE_TYPES[file]
+    else:
+        resp.mimetype = type_from_file(join(app.root_path, 'src', file), mime=True)
     return resp
 
 

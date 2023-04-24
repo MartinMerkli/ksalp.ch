@@ -911,7 +911,7 @@ def route_dokumente():
     class_ = request.args.get('klasse', default='', type=str)
     grade_ = request.args.get('klassenstufe', default='', type=str)
     return render_template('dokumente.html', **context, show_class=not bool(class_), show_grade=not bool(grade_),
-                           class_=class_, grade_=grade_)
+                           use_class_=class_, use_grade_=grade_)
 
 
 @app.route('/dokumente/documents.json', methods=['GET'])

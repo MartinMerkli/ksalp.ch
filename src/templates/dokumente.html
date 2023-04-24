@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 
 {% block main %}
-    <script data-class="{{ class_ }}" data-grade="{{ grade_ }}" src="/src/scripts/dokumente.js"></script>
+    <script data-class="{{ use_class_ }}" data-grade="{{ use_grade_ }}" src="/src/scripts/dokumente.js"></script>
     <h2 class="center">Dokumente</h2>
     {% if signed_in %}
         <p><a href="/dokumente/neu">Dokument hochladen</a></p>

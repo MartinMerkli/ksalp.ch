@@ -21,26 +21,26 @@
     </p>
     <p class="navbar-desktop">ksalp.ch</p>
     <ul class="navbar-list">
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/" class="navbar-link">Startseite</a></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/neuigkeiten" class="navbar-link">Neuigkeiten</a></li>
-        <li class="navbar-element"><span id="navbar-prefix_documents">&#129170; </span><a href="#" class="navbar-link" id="navbar-button_documents">Dokumente</a></li>
-        <li><ul class="navbar-second-list" id="navbar-list_documents" style="display: none">
+        <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/" class="navbar-link">Startseite</a></li>
+        <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/neuigkeiten" class="navbar-link">Neuigkeiten</a></li>
+        <li class="navbar-element"><span id="navbar-prefix_documents">&#9655; </span><a href="#" class="navbar-link" id="navbar-button_documents">Dokumente</a></li>
+        <li><ul class="navbar-second-list" id="navbar-list_documents">
             <li class="navbar-second-element"><a href="/dokumente" class="navbar-second-link">Alle</a></li>
             {% if signed_in %}
                 <li class="navbar-second-element"><a href="/dokumente/klasse" class="navbar-second-link">Meine Klasse</a></li>
                 <li class="navbar-second-element"><a href="/dokumente/klassenstufe" class="navbar-second-link">Meine Klassenstufe</a></li>
             {% endif %}
         </ul></li>
-        <li class="navbar-element"><span class="navbar-hide">&#129170; </span></li>
+        <li class="navbar-element"><span class="navbar-hide">&#9655; </span></li>
         {% if signed_in %}
-            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/abmelden" class="navbar-link">Abmelden</a></li>
-            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/einstellungen" class="navbar-link">Einstellungen</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/konto/abmelden" class="navbar-link">Abmelden</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/konto/einstellungen" class="navbar-link">Einstellungen</a></li>
         {% else %}
-            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/anmelden" class="navbar-link">Anmelden</a></li>
-            <li class="navbar-element"><span class="navbar-hide">&#129170; </span><a href="/konto/registrieren" class="navbar-link">Registrieren</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/konto/anmelden" class="navbar-link">Anmelden</a></li>
+            <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/konto/registrieren" class="navbar-link">Registrieren</a></li>
         {% endif %}
-        <li class="navbar-element"><span id="navbar-prefix_about">&#129170; </span><a href="#" class="navbar-link" id="navbar-button_about">Über</a></li>
-        <li><ul class="navbar-second-list" id="navbar-list_about" style="display: none">
+        <li class="navbar-element"><span id="navbar-prefix_about">&#9655; </span><a href="#" class="navbar-link" id="navbar-button_about">Über</a></li>
+        <li><ul class="navbar-second-list" id="navbar-list_about">
             <li class="navbar-second-element"><a href="/über/team" class="navbar-second-link">das Team</a></li>
             <li class="navbar-second-element"><a href="/über/kontakt" class="navbar-second-link">Kontakt</a></li>
             <li class="navbar-second-element"><a href="/über/quellcode" class="navbar-second-link">Quellcode</a></li>

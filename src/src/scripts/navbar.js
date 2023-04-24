@@ -5,10 +5,10 @@ function navbar_button(element) {
     let selector_list = $('navbar-list_' + element);
     let selector_prefix = $('navbar-prefix_' + element);
     if(selector_list.style.display === 'none'){
-        selector_prefix.innerHTML = '&#129171;';
+        selector_prefix.innerHTML = '&#9661;';
         selector_list.style.display = 'block';
     }else{
-        selector_prefix.innerHTML = '&#129170;';
+        selector_prefix.innerHTML = '&#9655;';
         selector_list.style.display = 'none';
     }
 }
@@ -29,4 +29,8 @@ window.addEventListener('DOMContentLoaded', function (){
     $('navbar-button_about').addEventListener('click', function () {
         navbar_button('about');
     }, false);
+    const selector_lists = ['documents', 'about'];
+    for(let i = 0; i < selector_lists.length; i++){
+        $('navbar-list_' + selector_lists[i]).style.display = 'none';
+    }
 }, false);

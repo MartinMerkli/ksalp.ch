@@ -1,3 +1,5 @@
+let dokumente__documents;
+
 function dokumente__sort(key, desc){
     dokumente__documents.sort(function (a, b){
         return a[key].localeCompare(b[key]);
@@ -70,11 +72,11 @@ const dokumente__dataset = document.currentScript.dataset;
 window.addEventListener('DOMContentLoaded', async function (){
     let dokumente__response;
     if (dokumente__dataset['class'] !== ''){
-        dokumente__response = await fetch('/dokumente/dokuments.json?class=' + dokumente__dataset['class']);
+        dokumente__response = await fetch('/dokumente/documents.json?class=' + dokumente__dataset['class']);
     } else if (dokumente__dataset['grade'] !== ''){
-        dokumente__response = await fetch('/dokumente/dokuments.json?grade=' + dokumente__dataset['grade']);
+        dokumente__response = await fetch('/dokumente/documents.json?grade=' + dokumente__dataset['grade']);
     } else {
-        dokumente__response = await fetch('/dokumente/dokuments.json');
+        dokumente__response = await fetch('/dokumente/documents.json');
     }
     let dokumente__documents = await dokumente__response.json();
     function $_(id){

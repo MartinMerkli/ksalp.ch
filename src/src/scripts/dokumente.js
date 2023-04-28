@@ -67,16 +67,16 @@ von <i>${dokumente__documents[i]['owner']}</i></p></div>`;
     $('dokumente_box').innerHTML = content;
 }
 const dokumente__dataset = document.currentScript.dataset;
-let dokumente__response;
-if (dokumente__dataset['class'] !== ''){
-    dokumente__response = await fetch('/dokumente/dokuments.json?class=' + dokumente__dataset['class']);
-} else if (dokumente__dataset['grade'] !== ''){
-    dokumente__response = await fetch('/dokumente/dokuments.json?grade=' + dokumente__dataset['grade']);
-} else {
-    dokumente__response = await fetch('/dokumente/dokuments.json');
-}
-let dokumente__documents = await dokumente__response.json();
-window.addEventListener('DOMContentLoaded', function (){
+window.addEventListener('DOMContentLoaded', async function (){
+    let dokumente__response;
+    if (dokumente__dataset['class'] !== ''){
+        dokumente__response = await fetch('/dokumente/dokuments.json?class=' + dokumente__dataset['class']);
+    } else if (dokumente__dataset['grade'] !== ''){
+        dokumente__response = await fetch('/dokumente/dokuments.json?grade=' + dokumente__dataset['grade']);
+    } else {
+        dokumente__response = await fetch('/dokumente/dokuments.json');
+    }
+    let dokumente__documents = await dokumente__response.json();
     function $_(id){
         return document.getElementById(id);
     }

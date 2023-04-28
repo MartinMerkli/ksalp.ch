@@ -226,7 +226,8 @@ body{
 
 /* neuigkeiten */
 .neuigkeiten_box li{
-    width: calc(100vw - 12em - 2 * 1em);
+    width: calc(100vw - 12em - 4 * 1em);
+    padding: 0;
     height: 2.7em;
     border-radius: 1em;
 }

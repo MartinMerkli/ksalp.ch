@@ -1,5 +1,3 @@
-let dokumente__documents;
-
 function dokumente__sort(key, desc){
     dokumente__documents.sort(function (a, b){
         return a[key].localeCompare(b[key]);
@@ -69,6 +67,7 @@ von <i>${dokumente__documents[i]['owner']}</i></p></div>`;
     $('dokumente_box').innerHTML = content;
 }
 const dokumente__dataset = document.currentScript.dataset;
+let dokumente__documents = {};
 window.addEventListener('DOMContentLoaded', async function (){
     let dokumente__response;
     if (dokumente__dataset['class'] !== ''){
@@ -78,7 +77,7 @@ window.addEventListener('DOMContentLoaded', async function (){
     } else {
         dokumente__response = await fetch('/dokumente/documents.json');
     }
-    let dokumente__documents = await dokumente__response.json();
+    dokumente__documents = await dokumente__response.json();
     function $_(id){
         return document.getElementById(id);
     }

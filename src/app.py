@@ -233,25 +233,6 @@ def is_signed_in(session_cookie):
     return False
 
 
-def account(session_cookie):
-    unavailable = (False, None, '', 'hell', False, '____')
-    if 'account' in session_cookie:
-        result1 = query_db('select valid, account from login where id = ?', (session_cookie['account'],), True)
-        if not result1:
-            return unavailable
-        if result1[0] < get_current_time():
-            return unavailable
-        result2 = query_db('select id, name, theme, payment, banned from account where id = ?', (result1[1],), True)
-        if not result2:
-            return unavailable
-        paid = result2[3] >= get_current_time()
-        theme = 'hell'
-        if paid:
-            theme = result2[2]
-        return True, result2[0], result2[1], theme, paid, result2[4]
-    return unavailable
-
-
 def is_banned(index, banned):
     return banned[index] == 'X' or banned[0] == 'X'
 

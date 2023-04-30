@@ -247,9 +247,6 @@ body{
 .konto-registrieren_fieldset select{
     float: right;
 }
-.konto-registrieren_fieldset select{
-    float: right;
-}
 .konto-registrieren_fieldset_bg-0{
     background: var(--bg);
     padding: 0 0.25em;

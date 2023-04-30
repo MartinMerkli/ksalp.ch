@@ -241,21 +241,6 @@ body{
 .konto-registrieren_fieldset{
     min-width: 8em;
 }
-.konto-registrieren_fieldset input{
-    float: right;
-}
-.konto-registrieren_fieldset select{
-    float: right;
-}
-.konto-registrieren_fieldset_bg-0{
-    background: var(--bg);
-    padding: 0 0.25em;
-}
-.konto-registrieren_fieldset_bg-1{
-    background: var(--fieldset-two-bg);
-    height: 2.4em;
-    padding: 0.25em;
-}
 
 /* dokumente */
 .dokumente_box{

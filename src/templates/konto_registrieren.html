@@ -6,46 +6,46 @@
     <h2 class="center">Registrieren</h2>
     <form action="/konto/registrieren2" method="post">
         <fieldset class="konto-registrieren_fieldset">
-            <p>
-                <label for="konto-registrieren_name">Name: </label>
-                <input type="text" id="konto-registrieren_name" name="name" required placeholder="Vorname Nachname" minlength="2" maxlength="64" class="input-text">
-            </p>
-            <p>
-                <label for="konto-registrieren_class">Klasse (oder '-'): </label>
-                <input type="text" id="konto-registrieren_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text">
-            </p>
-            <p>
-                <label for="konto-registrieren_grade">Klassenstufe (oder '-'): </label>
-                <select id="konto-registrieren_grade" name="grade" required class="input-text">
-                    {% for grade in grades %}
-                        <option value="{{ grade }}">{{ grade }}</option>
-                    {% endfor %}
-                </select>
-            </p>
-            <p>
-                <label for="konto-registrieren_mail">@sluz.ch E-Mail: </label>
-                <input type="email" id="konto-registrieren_mail" name="mail" required placeholder="vorname_nachname@sluz.ch" minlength="8" maxlength="64" pattern="\S*@sluz\.ch" class="input-text">
-            </p>
-            <p>
-                <label for="konto-registrieren_password">Passwort: <span id="konto-registrieren_password-info">[sehr schlecht]</span></label>
-                <input type="password" id="konto-registrieren_password" name="password" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
-            </p>
-            <p>
-                <label for="konto-registrieren_password-repeat">Passwort wiederholen: </label>
-                <input type="password" id="konto-registrieren_password-repeat" name="password-repeat" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
-            </p>
-            <p>
-                <label for="konto-registrieren_agreement">Ich erkläre mich mit den gelesenen <a href="/agb">Allgemeinen Geschäftsbedingungen</a> sowie den <a href="/datenschutz">Datenschutzrichtlinien</a> einverstanden.</label>
-                <input type="checkbox" id="konto-registrieren_agreement" name="agreement" required class="input-checkbox">
-            </p>
-            <p>
-                <label for="konto-registrieren_newsletter">Ich möchte Neuigkeiten in Form von E-Mails erhalten.</label>
-                <input type="checkbox" id="konto-registrieren_newsletter" name="newsletter" class="input-checkbox">
-            </p>
-            <p>
-                <label for="konto-registrieren_submit">Sie werden eine E-Mail erhalten.</label>
-                <input type="submit" id="konto-registrieren_submit" name="submit" value="Weiter" class="input-button">
-            </p>
+            <div class="konto-registrieren_fieldset_bg-0">
+            <label for="konto-registrieren_name">Name: </label>
+            <input type="text" id="konto-registrieren_name" name="name" required placeholder="Vorname Nachname" minlength="2" maxlength="64" class="input-text">
+            </div><br><div class="konto-registrieren_fieldset_bg-1">
+
+            <label for="konto-registrieren_class">Klasse (oder '-'): </label>
+            <input type="text" id="konto-registrieren_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text">
+            </div><br><div class="konto-registrieren_fieldset_bg-0">
+
+            <label for="konto-registrieren_grade">Klassenstufe (oder '-'): </label>
+            <select id="konto-registrieren_grade" name="grade" required class="input-text">
+                {% for grade in grades %}
+                    <option value="{{ grade }}">{{ grade }}</option>
+                {% endfor %}
+            </select>
+            </div><br><div class="konto-registrieren_fieldset_bg-1">
+
+            <label for="konto-registrieren_mail">@sluz.ch E-Mail: </label>
+            <input type="email" id="konto-registrieren_mail" name="mail" required placeholder="vorname_nachname@sluz.ch" minlength="8" maxlength="64" pattern="\S*@sluz\.ch" class="input-text">
+            </div><br><div class="konto-registrieren_fieldset_bg-0">
+
+            <label for="konto-registrieren_password">Passwort: <span id="konto-registrieren_password-info">[sehr schlecht]</span></label>
+            <input type="password" id="konto-registrieren_password" name="password" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
+            </div><br><div class="konto-registrieren_fieldset_bg-1">
+
+            <label for="konto-registrieren_password-repeat">Passwort wiederholen: </label>
+            <input type="password" id="konto-registrieren_password-repeat" name="password-repeat" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
+            </div><br><div class="konto-registrieren_fieldset_bg-0">
+
+            <label for="konto-registrieren_agreement">Ich erkläre mich mit den gelesenen <a href="/agb">Allgemeinen Geschäftsbedingungen</a> sowie den <a href="/datenschutz">Datenschutzrichtlinien</a> einverstanden.</label>
+            <input type="checkbox" id="konto-registrieren_agreement" name="agreement" required class="input-checkbox">
+            </div><br><div class="konto-registrieren_fieldset_bg-1">
+
+            <label for="konto-registrieren_newsletter">Ich möchte Neuigkeiten in Form von E-Mails erhalten.</label>
+            <input type="checkbox" id="konto-registrieren_newsletter" name="newsletter" class="input-checkbox">
+            </div><br><div class="konto-registrieren_fieldset_bg-0">
+
+            <label for="konto-registrieren_submit">Sie werden eine E-Mail erhalten.</label>
+            <input type="submit" id="konto-registrieren_submit" name="submit" value="Weiter" class="input-button">
+            </div><br>
         </fieldset>
     </form>
     <h3 class="center">FAQ</h3>

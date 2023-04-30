@@ -13,6 +13,7 @@
     --root-query: §root-query§;
     --box-li-bg: §box-li-bg§;
     --box-li-border: §box-li-border§;
+    --fieldset-two-bg: var(--navbar-bg);
 }
 body{
     font-family: Segoe UI, SegoeUI, Helvetica Neue, Helvetica, Arial, sans-serif;
@@ -141,7 +142,6 @@ body{
     border-radius: 1em;
     border-color: var(--root-query);
     padding: 0.25em 0.7em;
-    float: right;
 }
 .input-button{
     font-size: 1.2em;
@@ -149,14 +149,12 @@ body{
     border-color: var(--root-query);
     background-color: var(--bg);
     padding: 0.25em 0.7em;
-    float: right;
 }
 .input-checkbox{
     border-radius: 1em;
     border-color: var(--root-query);
     background-color: var(--bg);
     padding: 0.25em;
-    float: right;
     transform: scale(1.5);
 }
 .comments-container{
@@ -242,10 +240,24 @@ body{
 /* konto_registrieren */
 .konto-registrieren_fieldset{
     min-width: 8em;
-    display: inline-block;
 }
 .konto-registrieren_fieldset input{
     float: right;
+}
+.konto-registrieren_fieldset select{
+    float: right;
+}
+.konto-registrieren_fieldset select{
+    float: right;
+}
+.konto-registrieren_fieldset_bg-0{
+    background: var(--bg);
+    padding: 0 0.25em;
+}
+.konto-registrieren_fieldset_bg-1{
+    background: var(--fieldset-two-bg);
+    height: 2.4em;
+    padding: 0.25em;
 }
 
 /* dokumente */

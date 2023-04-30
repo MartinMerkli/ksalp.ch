@@ -1,5 +1,7 @@
 {% extends '_base.html' %}
 
+{% block title %}Vorschau '[{{ subject }}] {{ title }}'{% endblock %}
+
 {% block main %}
     <h2 class="center">[{{ subject }}] {{ title }}</h2>
     <p class="center"><b>{{ extension }} {{ size }}</b>&emsp;Zuletzt bearbeitet am <b>{{ edited1 }}</b> um

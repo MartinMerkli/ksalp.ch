@@ -33,6 +33,7 @@ EXTENSIONS = {
 }
 FILE_TYPES = {
     'libraries/zxcvbn.js': 'text/javascript',
+    'libraries/zxcvbn.js.map': 'text/javascript',
     'scripts/dokumente.js': 'text/javascript',
     'scripts/konto_einstellungen.js': 'text/javascript',
     'scripts/konto_registrieren.js': 'text/javascript',

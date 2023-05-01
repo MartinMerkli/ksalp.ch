@@ -454,7 +454,11 @@ def error(code, event='_', args=None):
         case '_':
             title, message = 'Fehler', 'Ein Fehler ist aufgetreten.'
     request_errors_log.log(LOG_ERROR, '|'.join(['', status, title, message, '']))
-    return render_template('_error.html', status=status, title=title, message=message), code
+    try:
+        context = create_context(session)
+    except Exception:
+        context = create_context({})
+    return render_template('_error.html', status=status, title=title, message=message, **context), code
 
 
 ########################################################################################################################

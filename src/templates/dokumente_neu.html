@@ -26,7 +26,7 @@
                 <label for="dokumente-neu_input_language">Sprache: </label>
                 <select id="dokumente-neu_input_language" name="language" required class="input-text">
                     {% for language in languages %}
-                        <option value="{{ language[0] }}">{{ language[1] }}</option>
+                        <option value="{{ language }}">{{ language }}</option>
                     {% endfor %}
                 </select>
             </p>

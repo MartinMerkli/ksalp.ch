@@ -837,7 +837,6 @@ def route_konto_einstellungen_(path: str):
                 return error(400, 'custom', ['Ungültiger Wert', f"Der Wert des Eingabefeldes 'Skalierungsfaktor' kann "
                                                                 f"nicht verstanden werden."])
             session['scale-factor'] = str(scale / 100)
-            return make_response(redirect('/konto/einstellungen', 200))
         case 'newsletter':
             if len(setting) < 2:
                 return error(400)
@@ -880,7 +879,7 @@ def route_konto_einstellungen_(path: str):
             query_db('UPDATE account SET grade=? WHERE id=?', (form['grade'], context['id']))
         case _:
             return error(400)
-    return redirect('/konto/einstellungen', 200)
+    return redirect('/konto/einstellungen')
 
 
 ########################################################################################################################

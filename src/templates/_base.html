@@ -15,7 +15,7 @@
 <div class="navbar" id="navbar">
     <p class="navbar-mobile">&ensp;<a href="#" class="navbar-link" id="navbar-menu_1">&#9587;</a>&emsp;
         {% if signed_in %}
-            <small>Angemeldet als <i>{{ account }}</i></small>
+            <small>Angemeldet als <i>{{ name }}</i></small>
         {% else %}
             <small>Nicht angemeldet</small>
         {% endif %}
@@ -55,7 +55,7 @@
 </div>
 <div class="account">
     {% if signed_in %}
-        <p>Angemeldet als <i>{{ account }}</i></p>
+        <p>Angemeldet als <i>{{ name }}</i></p>
     {% else %}
         <p>Nicht angemeldet</p>
     {% endif %}

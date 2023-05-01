@@ -502,7 +502,7 @@ def route_stylesheets(theme):
     for i in _THEMES[theme]:
         template = template.replace(f"§{i}§", _THEMES[theme][i])
     try:
-        scale = int(request.cookies.get('scale-factor', '1.0'))
+        scale = float(session.get('scale-factor', '1.0'))
     except ValueError:
         scale = 1.0
         session['scale-factor'] = str(scale)
@@ -769,11 +769,11 @@ def route_konto_einstellungen():
     if not context['signed_in']:
         return redirect('/konto/anmelden')
     try:
-        scale = int(request.cookies.get('scale-factor', '1.0'))
+        scale = float(session.get('scale-factor', '1.0'))
     except ValueError:
         scale = 1.0
     return render_template('konto_einstellungen.html', **context, themes=list(_THEMES.keys()),
-                           engines=list(_SEARCH_ENGINES.keys()), grades=_GRADES, scale=str(scale * 100))
+                           engines=list(_SEARCH_ENGINES.keys()), grades=_GRADES, scale=str(round(scale * 100)))
 
 
 @app.route('/konto/einstellungen/<path:path>', methods=['GET', 'POST'])

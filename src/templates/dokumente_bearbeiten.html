@@ -7,50 +7,65 @@
     <p class="center">{{ title }}&emsp;<i>#{{ document_id }}</i></p>
     <form action="/dokument/bearbeiten/post" method="post">
         <fieldset class="konto-registrieren_fieldset">
-            <p>
+            <div>
                 <label for="dokumente-neu_input_title">Name: </label>
+                <br>
                 <input type="text" id="dokumente-neu_input_title" name="title" required placeholder="..." minlength="2" maxlength="64" class="input-text" value="{{ title }}">
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_file">Datei: </label>
+                <br>
                 <input type="file" id="dokumente-neu_input_file" name="file" required class="input-text">
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_subject">Fach: </label>
+                <br>
                 <select id="dokumente-neu_input_subject" name="subject" required class="input-text">
                     {% for element in subjects %}
                         <option value="{{ element[0] }}" {% if element[0] == subject %}selected{% endif %}>{{ element[1] }}</option>
                     {% endfor %}
                 </select>
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_language">Sprache: </label>
+                <br>
                 <select id="dokumente-neu_input_language" name="language" required class="input-text">
                     {% for element in languages %}
                         <option value="{{ element[0] }}" {% if element[0] == doc_language %}selected{% endif %}>{{ element[1] }}</option>
                     {% endfor %}
                 </select>
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_class">Klasse (oder '-'): </label>
+                <br>
                 <input type="text" id="dokumente-neu_input_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ doc_class }}">
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_grade">Klassenstufe (oder '-'): </label>
+                <br>
                 <select id="dokumente-neu_input_grade" name="grade" required class="input-text">
                     {% for element in grades %}
                         <option value="{{ element }}" {% if element == doc_grade %}selected{% endif %}>{{ element }}</option>
                     {% endfor %}
                 </select>
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_description">Beschreibung: </label>
+                <br>
                 <input type="text" id="dokumente-neu_input_description" name="description" required placeholder="..." minlength="1" maxlength="2048" class="input-text" value="{{ description }}">
-            </p>
-            <p>
+            </div>
+            <br>
+            <div>
                 <label for="dokumente-neu_input_submit">Metadaten werden öffentlich sichtbar sein.</label>
+                <br>
                 <input type="submit" id="dokumente-neu_input_submit" name="submit" value="Hochladen" class="input-button">
-            </p>
+            </div>
         </fieldset>
     </form>
 {% endblock %}

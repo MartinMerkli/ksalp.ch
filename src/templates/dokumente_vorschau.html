@@ -33,14 +33,17 @@
         <h4>Neuen Kommentar verfassen</h4>
         <form action="/kommentar/neu?typ=dokument&id={{ document_id }}" method="post">
             <fieldset class="konto-registrieren_fieldset">
-                <p>
+                <div>
                     <label for="dokumente-vorschau_kommentar-comment">Name: </label>
+                    <br>
                     <input type="text" id="dokumente-vorschau_kommentar-comment" name="comment" required placeholder="..." minlength="1" maxlength="2048" class="input-text">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-registrieren_submit">Metadaten werden öffentlich sichtbar sein.</label>
+                    <br>
                     <input type="submit" id="konto-registrieren_submit" name="submit" value="Veröffentlichen" class="input-button">
-                </p>
+                </div>
             </fieldset>
         </form>
     {% else %}

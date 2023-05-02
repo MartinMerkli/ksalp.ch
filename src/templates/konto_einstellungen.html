@@ -39,22 +39,29 @@
         <h3 class="center" id="passwort">Passwort ändern</h3>
         <form action="/konto/einstellungen/password" method="post">
             <fieldset class="konto-registrieren_fieldset">
-                <p>
+                <div>
                     <label for="konto-einstellungen_password_password">Passwort: </label>
+                    <br>
                     <input type="password" id="konto-einstellungen_password_password" name="password" required placeholder="****************" class="input-text">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_password_password-new">neues Passwort: <span id="konto-einstellungen_password_password-info">[sehr schlecht]</span></label>
+                    <br>
                     <input type="password" id="konto-einstellungen_password_password-new" name="password-new" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_password_password-new-repeat">neues Passwort wiederholen: </label>
+                    <br>
                     <input type="password" id="konto-einstellungen_password_password-new-repeat" name="password-new-repeat" required placeholder="****************" minlength="8" maxlength="128" class="input-text">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_password_submit">Sie werden, je nach Ihren Einstellungen, eine E-Mail erhalten.</label>
+                    <br>
                     <input type="submit" id="konto-einstellungen_password_submit" name="submit" value="Ändern" class="input-button">
-                </p>
+                </div>
             </fieldset>
         </form>
     </div>
@@ -75,14 +82,17 @@
         <p>Aktuell beträgt die Skalierung {{ scale }}%.</p>
          <form action="/konto/einstellungen/scale" method="post">
             <fieldset class="konto-registrieren_fieldset">
-                <p>
+                <div>
                     <label for="konto-einstellungen_scale_scale">Skalierungsfaktor [in %]: </label>
+                    <br>
                     <input type="number" id="konto-einstellungen_scale_scale" name="scale" required placeholder="100" value="{{ scale }}" min="1" max="999" class="input-text">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_scale_submit">Diese Einstellung ist nur 3 Monate gültig.</label>
+                    <br>
                     <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
-                </p>
+                </div>
             </fieldset>
         </form>
     </div>
@@ -124,14 +134,17 @@
         <p>Sie sind in der Klasse {{ class_ }}.</p>
         <form action="/konto/einstellungen/class" method="post">
             <fieldset class="konto-registrieren_fieldset">
-                <p>
+                <div>
                     <label for="konto-einstellungen_class">Klasse (oder '-'): </label>
+                    <br>
                     <input type="text" id="konto-einstellungen_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ class_ }}">
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_scale_submit"></label>
+                    <br>
                     <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
-                </p>
+                </div>
             </fieldset>
         </form>
     </div>
@@ -140,18 +153,21 @@
         <p>Die Klassenstufe {{ grade }} ist ausgewählt.</p>
         <form action="/konto/einstellungen/grade" method="post">
             <fieldset class="konto-registrieren_fieldset">
-                <p>
-                <label for="konto-einstellungen_grade">Klassenstufe (oder '-'): </label>
+                <div>
+                    <label for="konto-einstellungen_grade">Klassenstufe (oder '-'): </label>
+                    <br>
                     <select id="konto-einstellungen_grade" name="grade" required class="input-text">
                         {% for element in grades %}
                             <option value="{{ element }}" {% if element == grade %}selected{% endif %}>{{ element }}</option>
                         {% endfor %}
                     </select>
-                </p>
-                <p>
+                </div>
+                <br>
+                <div>
                     <label for="konto-einstellungen_scale_submit"></label>
+                    <br>
                     <input type="submit" id="konto-einstellungen_scale_submit" name="submit" value="Ändern" class="input-button">
-                </p>
+                </div>
             </fieldset>
         </form>
     </div>

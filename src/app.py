@@ -758,11 +758,9 @@ def route_konto_abmelden():
     context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    if 'qILs7nxM' in request.cookies and context['signed_in']:
-        query_db('DELETE FROM login WHERE id=?', (request.cookies['qILs7nxM'],))
-    resp = make_response(redirect('/'))
-    resp.delete_cookie('qILs7nxM')
-    return resp
+    if 'account' in session and context['signed_in']:
+        query_db('DELETE FROM login WHERE id=?', (session['account'],))
+    return redirect('/')
 
 
 @app.route('/konto/einstellungen', methods=['GET'])

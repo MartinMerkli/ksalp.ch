@@ -48,7 +48,8 @@ app.config.update(
     SESSION_COOKIE_NAME='__Host-session',
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_SAMESITE='Strict'
+    SESSION_COOKIE_SAMESITE='Strict',
+    PERMANENT_SESSION_LIFETIME=timedelta(days=96),
 )
 
 
@@ -700,7 +701,7 @@ def route_konto_registrieren3():
               'hell', 0, '0000-00-00_00-00-00', '____', 'DuckDuckGo', result[8], result[9]))
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
-             (login, acc_id, (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
+             (login, acc_id, (datetime.now() + timedelta(days=96)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
     session['account'] = login
     return redirect('/')
@@ -747,7 +748,7 @@ def route_konto_anmelden2():
                                      'gegeben.'])
     login = rand_base64(43)
     query_db('INSERT INTO login VALUES (?, ?, ?, ?)',
-             (login, result[0], (datetime.now() + timedelta(days=64)).strftime('%Y-%m-%d_%H-%M-%S'),
+             (login, result[0], (datetime.now() + timedelta(days=96)).strftime('%Y-%m-%d_%H-%M-%S'),
               extract_browser(request.user_agent)))
     session['account'] = login
     return redirect('/')

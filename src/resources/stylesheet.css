@@ -288,6 +288,9 @@ body{
     .navbar-desktop{
         display: none;
     }
+    .-root_query{
+        max-width: 100vw;
+    }
 }
 @media (min-width: calc(§scale§ * 36em + 1px)){
     .navbar-mobile{
@@ -297,6 +300,9 @@ body{
         display: none;
     }
     .main{
+        max-width: calc(100vw - 12em - 2 * 0.8em);
+    }
+    .-root_query{
         max-width: calc(100vw - 12em - 2 * 0.8em);
     }
 }

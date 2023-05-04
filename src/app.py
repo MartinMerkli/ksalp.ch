@@ -985,7 +985,7 @@ def route_dokumente_neu_post():
         return error(422, 'form-missing')
     if not (0 < len(form['class']) < 5):
         return error(422, 'form-missing')
-    if not (0 < len(form['description']) < 5):
+    if not (0 < len(form['description']) < 2048):
         return error(422, 'form-missing')
     if form['subject'] not in _SUBJECTS:
         return error(422, 'form-missing')
@@ -1054,7 +1054,7 @@ def route_dokumente_bearbeiten_post():
         return error(422, 'form-missing')
     if not (0 < len(form['class']) < 5):
         return error(422, 'form-missing')
-    if not (0 < len(form['description']) < 5):
+    if not (0 < len(form['description']) < 2048):
         return error(422, 'form-missing')
     if form['subject'] not in _SUBJECTS:
         return error(422, 'form-missing')

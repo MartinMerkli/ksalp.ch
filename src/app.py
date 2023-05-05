@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import Flask, g, jsonify, make_response, redirect, render_template, request, send_from_directory, session
-from hashlib import pbkdf2_hmac, sha256
+from hashlib import pbkdf2_hmac, sha3_256
 from httpanalyzer import FlaskRequest as AnalyzerRequest
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
@@ -298,7 +298,7 @@ def hash_password(password, salt):
 
 
 def hash_ip(ip):
-    return urlsafe_b64encode(sha256(bytes(map(int, ip.split('.')))).digest()).decode()
+    return urlsafe_b64encode(sha3_256(bytes(map(int, ip.split('.')))).digest()).decode()
 
 
 def scan_request(r, session_cookie):

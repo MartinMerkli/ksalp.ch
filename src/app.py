@@ -978,23 +978,37 @@ def route_dokumente_neu_post():
     if not context['signed_in']:
         return error(401, 'account')
     form = dict(request.form)
-    for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
-        if i not in form:
-            return error(400, 'form-missing')
-    if not (0 < len(form['title']) < 65):
-        return error(422, 'form-missing')
-    if not (0 < len(form['class']) < 5):
-        return error(422, 'form-missing')
-    if not (0 < len(form['description']) < 2048):
-        return error(422, 'form-missing')
+    german_form_names = ['Titel', 'Fach', 'Sprache', 'Klasse', 'Klassenstufe', 'Beschreibung']
+    for i, v in enumerate(['title', 'subject', 'language', 'class', 'grade', 'description']):
+        if v not in form:
+            return error(400, 'custom', ['Fehlende Eingabe',
+                                         f"Das Eingabefeld '{german_form_names[i]}' wurde nicht ausgefüllt"])
+    if len(form['title']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Titel' wurde nicht ausgefüllt"])
+    if len(form['title']) > 64:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Titel' ist zu lang. "
+                                                         f"({len(form['title'])} von 64 Zeichen)"])
+    if len(form['description']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Beschreibung' wurde nicht ausgefüllt"])
+    if len(form['description']) > 2048:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Beschreibung' ist zu lang. "
+                                                         f"({len(form['description'])} von 64 Zeichen)"])
+    if len(form['class']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Klasse' wurde nicht ausgefüllt"])
+    if len(form['class']) > 4:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Klasse' ist zu lang. "
+                                                         f"({len(form['class'])} von 4 Zeichen)"])
     if form['subject'] not in _SUBJECTS:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Fach' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if form['language'] not in _LANGUAGES:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Sprache' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if form['grade'] not in _GRADES:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Klassenstufe' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if 'file' not in request.files:
-        return error(422, 'form-missing')
+        return error(400, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Datei' wurde nicht ausgefüllt"])
     doc_id = rand_base64(10)
     path = join(app.root_path, 'users/documents', doc_id)
     file = request.files['file']
@@ -1047,23 +1061,37 @@ def route_dokumente_bearbeiten_post():
     if result[0] != context['id']:
         return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
     form = dict(request.form)
-    for i in ['title', 'subject', 'language', 'class', 'grade', 'description']:
-        if i not in form:
-            return error(400, 'form-missing')
-    if not (0 < len(form['title']) < 65):
-        return error(422, 'form-missing')
-    if not (0 < len(form['class']) < 5):
-        return error(422, 'form-missing')
-    if not (0 < len(form['description']) < 2048):
-        return error(422, 'form-missing')
+    german_form_names = ['Titel', 'Fach', 'Sprache', 'Klasse', 'Klassenstufe', 'Beschreibung']
+    for i, v in enumerate(['title', 'subject', 'language', 'class', 'grade', 'description']):
+        if v not in form:
+            return error(400, 'custom', ['Fehlende Eingabe',
+                                         f"Das Eingabefeld '{german_form_names[i]}' wurde nicht ausgefüllt"])
+    if len(form['title']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Titel' wurde nicht ausgefüllt"])
+    if len(form['title']) > 64:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Titel' ist zu lang. "
+                                                         f"({len(form['title'])} von 64 Zeichen)"])
+    if len(form['description']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Beschreibung' wurde nicht ausgefüllt"])
+    if len(form['description']) > 2048:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Beschreibung' ist zu lang. "
+                                                         f"({len(form['description'])} von 64 Zeichen)"])
+    if len(form['class']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Klasse' wurde nicht ausgefüllt"])
+    if len(form['class']) > 4:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Klasse' ist zu lang. "
+                                                         f"({len(form['class'])} von 4 Zeichen)"])
     if form['subject'] not in _SUBJECTS:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Fach' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if form['language'] not in _LANGUAGES:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Sprache' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if form['grade'] not in _GRADES:
-        return error(422, 'form-missing')
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Klassenstufe' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
     if 'file' not in request.files:
-        return error(422, 'form-missing')
+        return error(400, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Datei' wurde nicht ausgefüllt"])
     path = join(app.root_path, 'users/documents', doc_id)
     file = request.files['file']
     file.save(path)

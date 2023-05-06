@@ -12,9 +12,9 @@
         <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" download="{{ download }}">Herunterladen</a> &emsp;
         <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" target="_blank">In neuem Tab öffnen</a> &emsp;
         {% if is_owner %}
-            <a class="footer-link" href="/dokumente/bearbeiten?id={{ document_id }}" target="_blank">In neuem Tab öffnen</a> &emsp;
+            <a class="footer-link" href="/dokumente/bearbeiten?id={{ document_id }}" target="_blank">Bearbeiten</a> &emsp;
         {% endif %}
-        <small><a class="footer-link" href="/melden?typ=dokument&id={{ document_id }}" target="_blank">In neuem Tab öffnen</a></small> &emsp;
+        <small><a class="footer-link" href="/melden?typ=dokument&id={{ document_id }}" target="_blank">Unangebrachter Inhalt melden</a></small> &emsp;
         {% if not allow_iframe %}
             <small>Die Vorschau ist standardmässig deaktiviert. <a class="footer-link" href="/konto/einstellungen">Ändern</a></small>
         {% elif not iframe_available %}
@@ -34,7 +34,7 @@
         <form action="/kommentar/neu?typ=dokument&id={{ document_id }}" method="post">
             <fieldset class="konto-registrieren_fieldset">
                 <div>
-                    <label for="dokumente-vorschau_kommentar-comment">Name: </label>
+                    <label for="dokumente-vorschau_kommentar-comment">Kommentar: </label>
                     <br>
                     <input type="text" id="dokumente-vorschau_kommentar-comment" name="comment" required placeholder="..." minlength="1" maxlength="2048" class="input-text">
                 </div>

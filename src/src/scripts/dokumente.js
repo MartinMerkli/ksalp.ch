@@ -57,7 +57,7 @@ function dokumente__reload(){
     let content = '';
     for(let i=0; i < dokumente__documents.length; i++){
         if(!(ignored.includes(i))){
-            content += `<div onclick="window.location.href = '/dokumente/vorschau/${dokumente__documents[i]['id']}'">
+            content += `<div id="${dokumente__documents[i]['id']}">
 <h3><b>${dokumente__documents[i]['subject']}</b> ${dokumente__documents[i]['title']}</h3>
 <p>[${dokumente__documents[i]['extension'].toUpperCase()}] Zuletzt bearbeitet am 
 ${dokumente__documents[i]['edited'].split('_')[0]}, erstellt am ${dokumente__documents[i]['created'].split('_')[0]} 
@@ -65,6 +65,14 @@ von <i>${dokumente__documents[i]['owner']}</i></p></div>`;
         }
     }
     $('dokumente_box').innerHTML = content;
+    for(let i=0; i < dokumente__documents.length; i++){
+        if(!(ignored.includes(i))){
+            document.getElementById(dokumente__documents[i]['id']).dataset['dokumente_id'] = dokumente__documents[i]['id'];
+            document.getElementById(dokumente__documents[i]['id']).addEventListener('click', function (evt) {
+                window.location.href = `/dokumente/vorschau/${evt.currentTarget.dataset['dokumente_id']}`;
+            }, false);
+        }
+    }
 }
 const dokumente__dataset = document.currentScript.dataset;
 let dokumente__documents = {};

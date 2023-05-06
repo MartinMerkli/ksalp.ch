@@ -249,6 +249,7 @@ body{
     padding: 0.1em;
 }
 .dokumente_box div{
+    border-style: solid;
     border-width: 0.1em;
     border-radius: 1em;
     border-color: var(--root-query);

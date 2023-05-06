@@ -12,7 +12,7 @@ function dokumente__reload(){
         return document.getElementById('dokumente_input_' + id);
     }
     let inputs = ['title', 'class', 'grade', 'subject', 'language', 'extension', 'owner', 'time1-start', 'time1-end', 'time2-start', 'time2-end']
-    let included = [];
+    let ignored = [];
     let copy = [];
     let keys = [];
     if(dokumente__documents.length > 0){
@@ -29,26 +29,26 @@ function dokumente__reload(){
         let value = $_(inputs[i]).value.toLowerCase();
         if(value !== ''){
             for(let j=0; j < copy.length; j++){
-                if(included.includes(j)){/* pass */
+                if(ignored.includes(j)){/* pass */
                 }else if(inputs[i] === 'time1-start'){
-                    if(copy[j]['created'].localeCompare(value) > 0){
-                        included.push(j);
+                    if(copy[j]['created'].localeCompare(value) < 0){
+                        ignored.push(j);
                     }
                 }else if(inputs[i] === 'time1-end'){
-                    if(copy[j]['created'].localeCompare(value) < 0){
-                        included.push(j);
+                    if(copy[j]['created'].localeCompare(value) > 0){
+                        ignored.push(j);
                     }
                 }else if(inputs[i] === 'time2-start'){
-                    if(copy[j]['edited'].localeCompare(value) > 0){
-                        included.push(j);
+                    if(copy[j]['edited'].localeCompare(value) < 0){
+                        ignored.push(j);
                     }
                 }else if(inputs[i] === 'time2-end'){
-                    if(copy[j]['edited'].localeCompare(value) < 0){
-                        included.push(j);
+                    if(copy[j]['edited'].localeCompare(value) > 0){
+                        ignored.push(j);
                     }
                 }else{
-                    if(copy[j][inputs[i]].includes(value)){
-                        included.push(j);
+                    if(!(copy[j][inputs[i]].includes(value))){
+                        ignored.push(j);
                     }
                 }
             }
@@ -56,7 +56,7 @@ function dokumente__reload(){
     }
     let content = '';
     for(let i=0; i < dokumente__documents.length; i++){
-        if(included.includes(i)){
+        if(!(ignored.includes(i))){
             content += `<div onclick="window.location.href = '/dokumente/vorschau/${dokumente__documents[i]['id']}'">
 <h3><b>${dokumente__documents[i]['subject']}</b> ${dokumente__documents[i]['title']}</h3>
 <p>[${dokumente__documents[i]['extension'].toUpperCase()}] Zuletzt bearbeitet am 

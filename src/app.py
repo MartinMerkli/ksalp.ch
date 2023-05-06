@@ -932,7 +932,7 @@ def route_dokumente_vorschau(doc_id):
     if context['signed_in']:
         allow_iframe = bool(context['iframe'])
     iframe_available = True  # temporary
-    download = f"{secure_filename(result1[0])}.{result1[9]}"
+    download = f"{secure_filename(result1[0])}.{result1[9].lowercase()}"
     comments = []
     result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (doc_id,))
     for i in result3:

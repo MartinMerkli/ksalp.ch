@@ -951,7 +951,7 @@ def route_dokumente_dokument(doc_id, _):
     context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    result = query_db('SELECT mimetype FROM document WHERE id=?', (doc_id,))
+    result = query_db('SELECT mimetype FROM document WHERE id=?', (doc_id,), True)
     if not result:
         return error(404)
     resp = make_response(send_from_directory(join(app.root_path, 'users/documents'), doc_id))

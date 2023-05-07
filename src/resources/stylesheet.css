@@ -266,6 +266,13 @@ body{
     padding: 0.15em 0.4em;
 }
 
+/* dokumente_vorschau */
+.dokumente-vorschau_iframe{
+    border-color: var(--root-query);
+    height: 75vh;
+    align-self: center;
+}
+
 /* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {
     .navbar{
@@ -292,6 +299,9 @@ body{
     .-root_query{
         max-width: 100vw;
     }
+    .dokumente-vorschau_iframe{
+        width: calc(100vw - 2 * 1em);
+    }
 }
 @media (min-width: calc(§scale§ * 36em + 1px)){
     .navbar-mobile{
@@ -305,5 +315,8 @@ body{
     }
     .-root_query{
         max-width: calc(100vw - 12em - 2 * 0.8em);
+    }
+    .dokumente-vorschau_iframe{
+        width: calc(100vw - 12em - 2 * 0.8em - 2 * 1em);
     }
 }

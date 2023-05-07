@@ -122,6 +122,14 @@ body{
     width: 100vw;
     background-color: var(--navbar-bg);
 }
+._base_warning{
+    position: absolute;
+    color: red;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+}
 
 /* COMMON */
 .center{

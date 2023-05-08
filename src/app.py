@@ -549,20 +549,19 @@ def route_neuigkeiten():
     return render_template('neuigkeiten.html', **context)
 
 
-@app.route('/melden', methods=['GET'])
+@app.route('/melden/post', methods=['POST'])
 def route_melden():
     context = create_context(session)
     if is_banned(0, context['banned']):
         return error(403, 'banned', [0])
-    type_ = request.args.get('typ', '', type=str)
-    id_ = request.args.get('id', '', type=str)
-    if (not type_) or (not id_):
+    form = dict(request.form)
+    if not form_require(['type', 'id'], form):
         return error(400, 'form-missing')
     if context['signed_in']:
         author = context['id']
     else:
         author = request.access_route[-1]
-    abuse_report_log.critical(f"{int(context['signed_in'])}\t{author}\t{type_}\t{id_}")
+    abuse_report_log.critical(f"{int(context['signed_in'])}\t{author}\t{form['type']}\t{form['id']}")
     return render_template('melden.html', **context)
 
 

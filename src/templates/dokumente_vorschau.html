@@ -8,21 +8,30 @@
         {{ edited2 }} Uhr&emsp;Erstellt am <b>{{ created1 }}</b> um {{ created2 }} Uhr&emsp;Hochgeladen von
         <b><i>{{ author }}</i></b></p>
     <p class="center"><small>Klasse: {{ doc_class }}&emsp;Klassenstufe: {{ doc_grade }}&emsp;Sprache: {{ doc_language }}&emsp;ID: <i>#{{ document_id }}</i></small></p>
-    <p class="center">
-        <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" download="{{ download }}">Herunterladen</a> &emsp;
-        <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" target="_blank">In neuem Tab öffnen</a> &emsp;
-        {% if is_owner %}
-            <a class="footer-link" href="/dokumente/bearbeiten?id={{ document_id }}" target="_blank">Bearbeiten</a> &emsp;
-        {% endif %}
-        <small><a class="footer-link" href="/melden?typ=dokument&id={{ document_id }}" target="_blank">Unangebrachter Inhalt melden</a></small> &emsp;
-        {% if not allow_iframe %}
-            <small>Die Vorschau ist standardmässig deaktiviert. <a class="footer-link" href="/konto/einstellungen">Ändern</a></small>
-        {% elif not iframe_available %}
-            <small>Für dieses Dokument ist keine Vorschau verfügbar.</small>
-        {% else %}
-            <small>Die Beschreibung und Kommentare befinden sich weiter unten.</small>
-        {% endif %}
-    </p>
+    <div class="center">
+        <p class="_melden_inline">
+            <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" download="{{ download }}">Herunterladen</a> &emsp;
+            <a class="footer-link" href="/dokumente/dokument/{{ document_id }}/{{ download }}" target="_blank">In neuem Tab öffnen</a> &emsp;
+            {% if is_owner %}
+                <a class="footer-link" href="/dokumente/bearbeiten?id={{ document_id }}" target="_blank">Bearbeiten</a> &emsp;
+            {% endif %}
+        </p>
+        <form action="/melden/post" method="post" class="_melden_inline" target="_blank">
+            <input type="hidden" name="type" value="dokument">
+            <input type="hidden" name="id" value="{{ document_id }}">
+            <input type="submit" name="Unangebrachter Inhalt melden" value="Unangebrachter Inhalt melden" class="_melden_link-button">
+        </form>
+        <p class="_melden_inline">&emsp;
+            {% if not allow_iframe %}
+                <small>Die Vorschau ist standardmässig deaktiviert. <a class="footer-link" href="/konto/einstellungen">Ändern</a></small>
+            {% elif not iframe_available %}
+                <small>Für dieses Dokument ist keine Vorschau verfügbar.</small>
+            {% else %}
+                <small>Die Beschreibung und Kommentare befinden sich weiter unten.</small>
+            {% endif %}
+        </p>
+    </div>
+    <br>
     {% if allow_iframe and iframe_available %}
         <iframe class="dokumente-vorschau_iframe" src="/dokumente/dokument/{{ document_id }}/{{ download }}"></iframe>
     {% endif %}
@@ -54,6 +63,11 @@
             <div>
                 <p><b><i>{{ comment[0] }}</i></b> am {{ comment[1] }} <small><i>#{{ comment[2] }}</i></small>
                     <a href="/melden?typ=kommentar?id={{ comment[2] }}"></a></p>
+                <form action="/melden/post" method="post" class="_melden_inline">
+                    <input type="hidden" name="type" value="kommentar">
+                    <input type="hidden" name="id" value="{{ comment[2] }}">
+                    <input type="submit" name="Melden" value="Melden" class="_melden_link-button">
+                </form>
                 <p><i>{{ comment[3] }}</i></p>
             </div>
         {% endfor %}

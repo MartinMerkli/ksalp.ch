@@ -178,6 +178,24 @@ body{
 .comments-container p{
     margin: 0.5em;
 }
+._melden_inline{
+    display: inline;
+}
+._melden_link-button{
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--footer-a);
+    transition: all 0.5s ease-out;
+}
+._melden_link-button:focus {
+    outline: none;
+}
+._melden_link-button:hover{
+    color: var(--footer-a-hover);
+}
+
 
 /* _root */
 .-root_query{

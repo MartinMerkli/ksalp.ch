@@ -26,29 +26,31 @@ function dokumente__reload(){
         copy.push(tmp);
     }
     for(let i=0; i < inputs.length; i++){
-        let value = $_(inputs[i]).value.toLowerCase();
-        if(value !== ''){
-            for(let j=0; j < copy.length; j++){
-                if(ignored.includes(j)){/* pass */
-                }else if(inputs[i] === 'time1-start'){
-                    if(copy[j]['created'].localeCompare(value) < 0){
-                        ignored.push(j);
-                    }
-                }else if(inputs[i] === 'time1-end'){
-                    if(copy[j]['created'].localeCompare(value) > 0){
-                        ignored.push(j);
-                    }
-                }else if(inputs[i] === 'time2-start'){
-                    if(copy[j]['edited'].localeCompare(value) < 0){
-                        ignored.push(j);
-                    }
-                }else if(inputs[i] === 'time2-end'){
-                    if(copy[j]['edited'].localeCompare(value) > 0){
-                        ignored.push(j);
-                    }
-                }else{
-                    if(!(copy[j][inputs[i]].includes(value))){
-                        ignored.push(j);
+        if(!((dokumente__dataset['class'] !== '') && (inputs[i] === 'class')) && !((dokumente__dataset['grade'] !== '') && (inputs[i] === 'grade'))){
+            let value = $_(inputs[i]).value.toLowerCase();
+            if(value !== ''){
+                for(let j=0; j < copy.length; j++){
+                    if(ignored.includes(j)){/* pass */
+                    }else if(inputs[i] === 'time1-start'){
+                        if(copy[j]['created'].localeCompare(value) < 0){
+                            ignored.push(j);
+                        }
+                    }else if(inputs[i] === 'time1-end'){
+                        if(copy[j]['created'].localeCompare(value) > 0){
+                            ignored.push(j);
+                        }
+                    }else if(inputs[i] === 'time2-start'){
+                        if(copy[j]['edited'].localeCompare(value) < 0){
+                            ignored.push(j);
+                        }
+                    }else if(inputs[i] === 'time2-end'){
+                        if(copy[j]['edited'].localeCompare(value) > 0){
+                            ignored.push(j);
+                        }
+                    }else{
+                        if(!(copy[j][inputs[i]].includes(value))){
+                            ignored.push(j);
+                        }
                     }
                 }
             }

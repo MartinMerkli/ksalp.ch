@@ -5,10 +5,10 @@ function navbar_button(element) {
     let selector_list = $('navbar-list_' + element);
     let selector_prefix = $('navbar-prefix_' + element);
     if(selector_list.style.display === 'none'){
-        selector_prefix.innerHTML = '&#9661;';
+        selector_prefix.innerHTML = '&#9661; ';
         selector_list.style.display = 'block';
     }else{
-        selector_prefix.innerHTML = '&#9655;';
+        selector_prefix.innerHTML = '&#9655; ';
         selector_list.style.display = 'none';
     }
 }

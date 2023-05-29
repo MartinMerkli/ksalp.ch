@@ -154,6 +154,34 @@ db_tables = {
         'owner TEXT',  # organisation or physical location
         'score INTEGER',  # rating: 0: banned, 1: always require captcha, 2: normal, 3: cannot be banned
     ],
+    'learn_exercise': [
+        'id TEXT PRIMARY KEY',  # exercise id; {7-digit base64}.{12-digit base64}
+        'set_id TEXT',  # id of the corresponding set; 7-digit base64
+        'question TEXT',  # the question
+        'answer TEXT',  # exemplary answer (may include steps)
+        'answers TEXT',  # correct short answers for autocorrection; $-seperated list
+        'frequency REAL',  # frequency of this exercise appearing; float
+        'auto_check INTEGER',  # reserved for future use
+    ],
+    'learn_set': [
+        'id TEXT PRIMARY KEY',  # set id; 7-digit base64
+        'title TEXT',  # short description
+        'subject TEXT',  # subject code, 1 to 3 digits
+        'description TEXT',  # additional information
+        'class TEXT',  # class name
+        'grade TEXT',  # '1' to '6' or '-'
+        'language TEXT',  # 2-digit language code
+        'owner TEXT',  # account id
+        'edited TEXT',  # date; %Y-%m-%d_%H-%M-%S
+        'created TEXT',  # date; %Y-%m-%d_%H-%M-%S
+    ],
+    'learn_stat': [
+        'id TEXT PRIMARY KEY',  # set id; 13-digit base64
+        'exercise_id TEXT',  # exercise id
+        'owner TEXT',  # account id
+        'correct INTEGER',  # number of correct entries
+        'wrong INTEGER',  # number of wrong entries
+    ],
     'login': [
         'id TEXT PRIMARY KEY',  # the id which is stored as a cookie on the browser; 43-digit base64
         'account TEXT',  # matching account id; 8-digit base64
@@ -1130,6 +1158,140 @@ def route_dokumente_klassenstufe():
         return error(401, 'account')
     result = query_db('SELECT grade FROM account WHERE id=?', (context['id'],), True)
     return redirect(f"/dokumente?klassenstufe={result[0]}")
+
+
+########################################################################################################################
+# LEARNING SETS
+########################################################################################################################
+
+
+@app.route('/lernsets', methods=['GET'])
+def route_lernsets():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    class_ = request.args.get('klasse', default='', type=str)
+    grade_ = request.args.get('klassenstufe', default='', type=str)
+    return render_template('lernsets.html', **context, show_class=not bool(class_), show_grade=not bool(grade_),
+                           use_class_=class_, use_grade_=grade_)
+
+
+@app.route('/lernsets/sets.json', methods=['GET'])
+def route_lernsets_sets():
+    class_ = request.args.get('class', default='', type=str)
+    grade_ = request.args.get('grade', default='', type=str)
+    sets_ = request.args.get('sets', default='', type=str)
+    sets = sets_.split('$')
+    indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created']
+    if class_:
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE class=?", (class_,))  # noqa
+    elif grade_:
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE grade=?", (grade_,))  # noqa
+    elif sets_:
+        allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
+        for char in sets_:
+            if char not in allowed:
+                return 'error: request contains characters which are not allowed', 400
+        query = []
+        for i in sets:
+            query.append(f"id='{i}'")
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {' OR '.join(query)}")  # noqa
+    else:
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set")  # noqa
+    learn_sets = []
+    for _, val in enumerate(result):
+        learn_set = {}
+        for i, v in enumerate(indices):
+            learn_set[v] = val[i]
+        learn_set['owner'] = account_name(learn_set['owner'])
+        learn_sets.append(learn_set)
+    return jsonify(learn_sets)
+
+
+@app.route('/lernsets/exercises.json', methods=['GET'])
+def route_lernsets_exercises():
+    sets_ = request.args.get('sets', default='', type=str)
+    sets = sets_.split('$')
+    indices = ['id', 'set_id', 'question', 'answer', 'answers', 'frequency', 'auto_check']
+    if sets_:
+        allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
+        for char in sets_:
+            if char not in allowed:
+                return 'error: request contains characters which are not allowed', 400
+        query = []
+        for i in sets:
+            query.append(f"id='{i}'")
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise WHERE {' OR '.join(query)}")  # noqa
+    else:
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise")  # noqa
+    exercises = []
+    for _, val in enumerate(result):
+        exercise = {}
+        for i, v in enumerate(indices):
+            exercise[v] = val[i]
+        exercises.append(exercise)
+    return jsonify(exercises)
+
+
+@app.route('/lernsets/stats.json', methods=['GET'])
+def route_lernsets_stats():
+    context = create_context(session)
+    if not context['signed_in']:
+        return 'error: not signed-in', 401
+    sets_ = request.args.get('sets', default='', type=str)
+    sets = sets_.split('$')
+    indices = ['id', 'set_id', 'question', 'answer', 'answers', 'frequency', 'auto_check']
+    if sets_:
+        allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
+        for char in sets_:
+            if char not in allowed:
+                return 'error: request contains characters which are not allowed', 400
+        query = []
+        for i in sets:
+            query.append(f"id='{i}'")
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_stat WHERE owner=? OR "  # noqa
+                          f"({' OR '.join(query)})", (context[id],))  # noqa
+    else:
+        result = query_db(f"SELECT {', '.join(indices)} FROM learn_stat")  # noqa
+    stats = []
+    for _, val in enumerate(result):
+        stat = {}
+        for i, v in enumerate(indices):
+            stat[v] = val[i]
+        stats.append(stat)
+    return jsonify(stats)
+
+
+@app.route('/lernsets/start', methods=['POST'])
+def route_lernsets_start():
+    form = dict(request.form)
+    selected_sets = form.keys()
+    return redirect(f"/lernsets/lernen/{'$'.join(selected_sets)}")
+
+
+@app.route('/lernsets/statistics', methods=['POST'])
+def route_lernsets_statistics():
+    context = create_context(session)
+    if not context['signed_in']:
+        return 'error: not signed-in', 401
+    try:
+        data = request.json()
+    except Exception:
+        return 'error: request is not json', 400
+    for i in ['exercise_id', 'answer', 'correct']:
+        if i not in data:
+            return 'error: request is malformed', 400
+    result0 = query_db('SELECT id FROM learn_stat WHERE owner=? AND exercise_id=?', (context['id'],), True)
+    if result0:
+        stat_id = result0[0]
+    else:
+        stat_id = rand_base64(13)
+        query_db('INSERT INTO learn_stat VALUES (?, ?, ?, 0, 0)', (stat_id, data['exercise_id'], context['id']))
+    if data['correct']:
+        query_db('UPDATE learn_stat SET correct = correct + 1 WHERE id=?', (stat_id,))
+    else:
+        query_db('UPDATE learn_stat SET wrong = wrong + 1 WHERE id=?', (stat_id,))
+    return 'success', 200
 
 
 ########################################################################################################################

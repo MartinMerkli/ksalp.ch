@@ -14,6 +14,7 @@
     --box-li-bg: §box-li-bg§;
     --box-li-border: §box-li-border§;
     --fieldset-two-bg: var(--navbar-bg);
+    --error-fg: §error-fg§;
 }
 body{
     font-family: Segoe UI, SegoeUI, Helvetica Neue, Helvetica, Arial, sans-serif;
@@ -178,6 +179,9 @@ body{
 .comments-container p{
     margin: 0.5em;
 }
+.error{
+    color: var(--error-fg);
+}
 ._melden_inline{
     display: inline;
 }
@@ -297,6 +301,30 @@ body{
     border-color: var(--root-query);
     height: 75vh;
     align-self: center;
+}
+
+/* lernsets */
+.lernsets_box{
+    margin-top: 1em;
+    display: inline-grid;
+    padding: 0.1em;
+}
+.lernsets_box label{
+    border-style: solid;
+    border-width: 0.1em;
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    padding: 0.25em 0.7em;
+    display: inline;
+    float: none;
+}
+.lernsets_box input[type=checkbox]{
+    border-radius: 1em;
+    border-color: var(--root-query);
+    background-color: var(--bg);
+    padding: 0.25em;
+    transform: scale(1.5);
 }
 
 /* SCALING */

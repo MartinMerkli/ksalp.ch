@@ -192,5 +192,6 @@ THEMES = {
         'root-query': '#777777',
         'box-li-bg': '#ffffff',
         'box-li-border': '#777777',
+        'error-fg': '#ff2222',
     },
 }

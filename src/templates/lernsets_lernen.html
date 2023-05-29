@@ -1,0 +1,40 @@
+{% extends '_base.html' %}
+
+{% block title %}Lernsets{% endblock %}
+
+{% block main %}
+    <script rel="/src/scripts/lernsets_lernern.js" data-login="{% if signed_in %}True{% endif %}" data-sets="{{ sets }}"></script>
+    <div class="center">
+        <div id="lernsets-learn_div_connection-error">
+            <h2 class="error">Statistiken wurden nicht gespeichert, da keine Verbindung zum Server hergestellt werden konnte.</h2>
+        </div>
+        <div id="lernsets-learn_div_other-error">
+            <h2 class="error">Ein unbekannter Fehler ist aufgetreten. Bitte informieren Sie das <a href="/über/team">ksalp.ch-Team</a> wie dieser Fehler reproduziert werden kann.</h2>
+        </div>
+        <div id="lernsets-learn_div_loading">
+            <h1>Lädt ...</h1>
+            <p>Bitte warten Sie einen Moment, während das Lernprogramm gestartet wird.</p>
+        </div>
+        <div id="lernsets-learn_div_exercise">
+            <h2 id="lernsets-learn_question">Lädt...</h2>
+            <label for="lernsets-learn_input"></label>
+            <textarea name="answer" id="lernsets-learn_input" cols="64" rows="4" class="input-text"></textarea>
+            <button type="button" id="lernsets-learn_button" class="input-button">Antworten</button>
+            <p id="lernsets-learn_exercise-id">Lädt...</p>
+            <p id="lernsets-learn_exercise-stats">Lädt...</p>
+            <p id="lernsets-learn_exercise-name">Lädt...</p>
+        </div>
+        <div id="lernsets-learn_div_result">
+            <h2 id="lernsets-learn_result-question">Lädt...</h2>
+            <h3>Musterlösung</h3>
+            <p id="lernsets-learn_solution">Lädt...</p>
+            <h3>Ihre Antwort</h3>
+            <p id="lernsets-learn_answer">Lädt...</p>
+            <button class="input-button" id="lernsets-learn_correct">Richtig</button>
+            <button class="input-button" id="lernsets-learn_wrong">Falsch</button>
+            <p id="lernsets-learn_result-id">Lädt...</p>
+            <p id="lernsets-learn_result-stats">Lädt...</p>
+            <p id="lernsets-learn_result-name">Lädt...</p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends '_base.html' %}
+
+{% block title %}Lernsets{% endblock %}
+
+{% block main %}
+    <script data-class="{{ use_class_ }}" data-grade="{{ use_grade_ }}" src="/src/scripts/lernsets.js"></script>
+    <h2 class="center">Lernsets</h2>
+    {% if signed_in %}
+        <p><a href="/lernsets/neu">Lernset hochladen</a></p>
+    {% else %}
+        <p>Sie müssen angemeldet sein, um Lernsets hochladen zu können.</p>
+    {% endif %}
+    <h3> &ensp; &ensp; Sortieren</h3>
+    <div>
+        <a href="#" class="footer-link" id="lernsets_sort_edited-t">Zuletzt bearbeitet</a> &ensp;
+        <a href="#" class="footer-link" id="lernsets_sort_edited-f">Zuletzt bearbeitet <small><i>[invertiert]</i></small></a> &ensp;
+        <a href="#" class="footer-link" id="lernsets_sort_created-t">Zuletzt erstellt</a> &ensp;
+        <a href="#" class="footer-link" id="lernsets_sort_created-f">Zuletzt erstellt <small><i>[invertiert]</i></small></a> &ensp;
+    </div>
+    <h3> &ensp; &ensp; Filter</h3>
+    <div>
+        <label><input type="text" class="dokumente_filter" placeholder="Titel" id="lernsets_input_title"></label>
+        {% if show_class %}
+            <label><input type="text" class="dokumente_filter" placeholder="Klasse" id="lernsets_input_class"></label>
+        {% endif %}
+        {% if show_grade %}
+            <label><input type="text" class="dokumente_filter" placeholder="Klassenstufe" id="lernsets_input_grade"></label>
+        {% endif %}
+        <label><input type="text" class="dokumente_filter" placeholder="Fach" id="lernsets_input_subject"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Sprache" id="lernsets_input_language"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="Ersteller*in" id="lernsets_input_owner"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="später erstellt als" id="lernsets_input_time1-start"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="früher erstellt als" id="lernsets_input_time1-end"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="später bearbeitet als" id="lernsets_input_time2-start"></label>
+        <label><input type="text" class="dokumente_filter" placeholder="früher bearbeitet als" id="lernsets_input_time2-end"></label>
+    </div>
+    <form action="/lernsets/start" method="post" class="lernsets_box" id="lernsets_box"></form>
+{% endblock %}

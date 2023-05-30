@@ -1250,7 +1250,7 @@ def route_lernsets_stats():
         for i in sets:
             query.append(f"id='{i}'")
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_stat WHERE owner=? OR "  # noqa
-                          f"({' OR '.join(query)})", (context[id],))  # noqa
+                          f"({' OR '.join(query)})", (context['id'],))  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_stat")  # noqa
     stats = []

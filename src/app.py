@@ -1217,7 +1217,7 @@ def route_lernsets_exercises():
         allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
         for char in sets_:
             if char not in allowed:
-                return 'error: request contains characters which are not allowed', 400
+                return 'error: request contains characters that are not allowed', 400
         query = []
         for i in sets:
             query.append(f"id='{i}'")
@@ -1245,7 +1245,7 @@ def route_lernsets_stats():
         allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
         for char in sets_:
             if char not in allowed:
-                return 'error: request contains characters which are not allowed', 400
+                return 'error: request contains characters that are not allowed', 400
         query = []
         for i in sets:
             query.append(f"id='{i}'")

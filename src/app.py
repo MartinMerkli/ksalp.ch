@@ -1176,6 +1176,28 @@ def route_lernsets():
                            use_class_=class_, use_grade_=grade_)
 
 
+@app.route('/lernsets/klasse', methods=['GET'])
+def route_lernsets_klasse():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['signed_in']:
+        return error(401, 'account')
+    result = query_db('SELECT class FROM account WHERE id=?', (context['id'],), True)
+    return redirect(f"/lernsets?klasse={result[0]}")
+
+
+@app.route('/lernsets/klassenstufe', methods=['GET'])
+def route_lernsets_klassenstufe():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['signed_in']:
+        return error(401, 'account')
+    result = query_db('SELECT grade FROM account WHERE id=?', (context['id'],), True)
+    return redirect(f"/lernsets?klassenstufe={result[0]}")
+
+
 @app.route('/lernsets/sets.json', methods=['GET'])
 def route_lernsets_sets():
     class_ = request.args.get('class', default='', type=str)

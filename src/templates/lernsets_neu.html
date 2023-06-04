@@ -1,0 +1,71 @@
+{% extends '_base.html' %}
+
+{% block title %}Lernset hochladen{% endblock %}
+
+{% block main %}
+    <h2 class="center">Lernset hochladen</h2>
+    <form action="/lernsets/neu/post" method="post" enctype="multipart/form-data">
+        <fieldset class="konto-registrieren_fieldset">
+            <div>
+                <label for="lernsets-neu_input_title">Name: </label>
+                <br>
+                <input type="text" id="lernsets-neu_input_title" name="title" required placeholder="..." minlength="2" maxlength="64" class="input-text">
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_file">Datei (optional)*: </label>
+                <br>
+                <input type="file" id="lernsets-neu_input_file" name="file" class="input-text">
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_subject">Fach: </label>
+                <br>
+                <select id="lernsets-neu_input_subject" name="subject" required class="input-text">
+                    {% for subject in subjects %}
+                        <option value="{{ subject[0] }}">{{ subject[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_language">Sprache: </label>
+                <br>
+                <select id="lernsets-neu_input_language" name="language" required class="input-text">
+                    {% for language in languages %}
+                        <option value="{{ language }}">{{ language }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_class">Klasse (oder '-'): </label>
+                <br>
+                <input type="text" id="lernsets-neu_input_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text">
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_grade">Klassenstufe (oder '-'): </label>
+                <br>
+                <select id="lernsets-neu_input_grade" name="grade" required class="input-text">
+                    {% for grade in grades %}
+                        <option value="{{ grade }}">{{ grade }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_description">Beschreibung: </label>
+                <br>
+                <input type="text" id="lernsets-neu_input_description" name="description" required placeholder="..." minlength="1" maxlength="2048" class="input-text">
+            </div>
+            <br>
+            <div>
+                <label for="lernsets-neu_input_submit">Metadaten werden öffentlich sichtbar sein.</label>
+                <br>
+                <input type="submit" id="lernsets-neu_input_submit" name="submit" value="Hochladen" class="input-button">
+            </div>
+        </fieldset>
+    </form>
+    <p>* falls keine Datei ausgewählt ist, wird ein leeres Lernset erstellt.</p>
+{% endblock %}

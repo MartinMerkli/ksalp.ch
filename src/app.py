@@ -12,6 +12,7 @@ from email.mime.text import MIMEText
 from flask import Flask, g, jsonify, make_response, redirect, render_template, request, send_from_directory, session
 from hashlib import pbkdf2_hmac, sha3_256
 from httpanalyzer import FlaskRequest as AnalyzerRequest
+from json import loads as json_loads
 from logging import FileHandler as LogFileHandler, StreamHandler as LogStreamHandler, log as logging_log
 from logging import basicConfig as log_basicConfig, getLogger as GetLogger, Formatter as LogFormatter
 from logging import ERROR as LOG_ERROR, INFO as LOG_INFO
@@ -406,6 +407,44 @@ def send_mail(address, subject, message_plain, message):
 
 def form_require(keys, form):
     return all([key in form for key in keys])
+
+
+########################################################################################################################
+# LEARNING SETS
+########################################################################################################################
+
+
+def learning_set_upload(data, set_id):
+    trigger_error = None
+    if data[0] == '{':
+        json_file = json_loads(data)
+        content = {}
+        for i in json_file:
+            accept = True
+            for j in ['question', 'answer', 'answers', 'frequency']:
+                if j not in json_file[i]:
+                    accept = False
+            if accept:
+                if (not isinstance(json_file[i]['question'], str)) \
+                        or (not isinstance(json_file[i]['answer'], str)) \
+                        or (not isinstance(json_file[i]['answers'], list)) \
+                        or (not isinstance(json_file[i]['frequency'], float)):
+                    accept = False
+            if accept:
+                content[set_id + '.' + rand_base64(12)] = json_file[i]
+        if not content:
+            trigger_error = 'Die Datei enthält keine zulässigen Aufgaben. Bitte überprüfen Sie den Inhalt der Datei.'
+    else:
+        content = {}
+        lines = data.split('\n')
+        for line in lines:
+            if '; ' in line:
+                parts = line.split('; ')
+                content[set_id + '.' + rand_base64(12)] = {'question': parts[0], 'answer': parts[1].split('$'),
+                                                           'answers': parts[1], 'frequency': 1.0}
+        if not content:
+            trigger_error = 'Die Datei enthält keine zulässigen Aufgaben. Bitte überprüfen Sie den Inhalt der Datei.'
+    return content, trigger_error
 
 
 ########################################################################################################################
@@ -1314,6 +1353,80 @@ def route_lernsets_statistics():
     else:
         query_db('UPDATE learn_stat SET wrong = wrong + 1 WHERE id=?', (stat_id,))
     return 'success', 200
+
+
+@app.route('/lernsets/neu', methods=['GET'])
+def route_lernsets_neu():
+    context = create_context(session)
+    if is_banned(3, context['banned']):
+        return error(403, 'banned', [3])
+    if not context['signed_in']:
+        return error(401, 'account')
+    return render_template('lernsets_neu.html', **context, subjects=_SUBJECTS.items(), languages=_LANGUAGES,
+                           grades=_GRADES)
+
+
+@app.route('/lernsets/neu/post', methods=['POST'])
+def route_lernsets_neu_post():
+    context = create_context(session)
+    if is_banned(3, context['banned']):
+        return error(403, 'banned', [3])
+    if not context['signed_in']:
+        return error(401, 'account')
+    form = dict(request.form)
+    german_form_names = ['Titel', 'Fach', 'Sprache', 'Klasse', 'Klassenstufe', 'Beschreibung']
+    for i, v in enumerate(['title', 'subject', 'language', 'class', 'grade', 'description']):
+        if v not in form:
+            return error(400, 'custom', ['Fehlende Eingabe',
+                                         f"Das Eingabefeld '{german_form_names[i]}' wurde nicht ausgefüllt"])
+    if len(form['title']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Titel' wurde nicht ausgefüllt"])
+    if len(form['title']) > 64:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Titel' ist zu lang. "
+                                                         f"({len(form['title'])} von 64 Zeichen)"])
+    if len(form['description']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Beschreibung' wurde nicht ausgefüllt"])
+    if len(form['description']) > 2048:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Beschreibung' ist zu lang. "
+                                                         f"({len(form['description'])} von 64 Zeichen)"])
+    if len(form['class']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Klasse' wurde nicht ausgefüllt"])
+    if len(form['class']) > 4:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Klasse' ist zu lang. "
+                                                         f"({len(form['class'])} von 4 Zeichen)"])
+    if form['subject'] not in _SUBJECTS:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Fach' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    if form['language'] not in _LANGUAGES:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Sprache' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    if form['grade'] not in _GRADES:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Klassenstufe' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    set_id = rand_base64(7)
+    content = {}
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename != '':
+            data = file.stream.read().decode()
+            file.close()
+            try:
+                content, trigger_error = learning_set_upload(data, set_id)
+            except Exception as err:
+                return error(403, 'custom', ['Ein Fehler ist aufgetreten.',
+                                             f"Während dem erstellen des Lernsets ist folgender, unbekannter Fehler "
+                                             f"aufgetreten: \"{err}\""])
+            if trigger_error is not None:
+                return error(422, 'custom', ['Ein Fehler ist aufgetreten.',
+                                             f"Während dem erstellen des Lernsets ist folgender, unbekannter Fehler "
+                                             f"aufgetreten: \"{trigger_error}\""])
+    query_db('INSERT INTO learn_set VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+             (set_id, form['title'], form['subject'], form['description'], form['class'], form['grade'],
+              form['language'], context['id'], get_current_time(), get_current_time()))
+    for _, (ex_id, v) in enumerate(content.items()):
+        query_db('INSERT INTO learn_exercise VALUES (?, ?, ?, ?, ?, ?, ?)', (ex_id, set_id, v['question'], v['answer'],
+                                                                             v['answers'], v['frequency'], 0))
+    return redirect('/lernsets')
 
 
 ########################################################################################################################

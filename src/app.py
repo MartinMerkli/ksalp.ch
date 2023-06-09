@@ -1429,6 +1429,94 @@ def route_lernsets_neu_post():
     return redirect('/lernsets')
 
 
+@app.route('/lernsets/bearbeiten', methods=['GET'])
+def route_lernsets_bearbeiten():
+    context = create_context(session)
+    if is_banned(3, context['banned']):
+        return error(403, 'banned', [3])
+    if not context['signed_in']:
+        return error(401, 'account')
+    set_id = request.args.get('id', '', str)
+    result = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created '
+                      'FROM learn_set WHERE id=?', (set_id,), True)
+    if not result:
+        return error(404)
+    if result[6] != context['id']:
+        return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
+    return render_template('lernsets_bearbeiten.html', **context, subject=result[1], title=result[0],
+                           set_class=result[3], set_grade=result[4], set_language=result[5], set_id=set_id,
+                           description=result[2])
+
+
+@app.route('/lernsets/bearbeiten/post', methods=['GET'])
+def route_lernsets_bearbeiten_post():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [3])
+    if not context['signed_in']:
+        return error(401, 'account')
+    set_id = request.args.get('id', '', str)
+    result = query_db('SELECT owner, created FROM learn_set WHERE id=?', (set_id,), True)
+    if not result:
+        return error(404)
+    if result[0] != context['id']:
+        return error(403, 'custom', ['Keine Berechtigung', 'Sie sind nicht berechtigt, diese Funktion zu nutzen.'])
+    form = dict(request.form)
+    german_form_names = ['Titel', 'Fach', 'Sprache', 'Klasse', 'Klassenstufe', 'Beschreibung']
+    for i, v in enumerate(['title', 'subject', 'language', 'class', 'grade', 'description']):
+        if v not in form:
+            return error(400, 'custom', ['Fehlende Eingabe',
+                                         f"Das Eingabefeld '{german_form_names[i]}' wurde nicht ausgefüllt"])
+    if len(form['title']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Titel' wurde nicht ausgefüllt"])
+    if len(form['title']) > 64:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Titel' ist zu lang. "
+                                                         f"({len(form['title'])} von 64 Zeichen)"])
+    if len(form['description']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Beschreibung' wurde nicht ausgefüllt"])
+    if len(form['description']) > 2048:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Beschreibung' ist zu lang. "
+                                                         f"({len(form['description'])} von 64 Zeichen)"])
+    if len(form['class']) == 0:
+        return error(422, 'custom', ['Fehlende Eingabe', f"Das Eingabefeld 'Klasse' wurde nicht ausgefüllt"])
+    if len(form['class']) > 4:
+        return error(422, 'custom', ['Zu lange Eingabe', f"Ihre Angabe für das Eingabefeld 'Klasse' ist zu lang. "
+                                                         f"({len(form['class'])} von 4 Zeichen)"])
+    if form['subject'] not in _SUBJECTS:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Fach' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    if form['language'] not in _LANGUAGES:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Sprache' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    if form['grade'] not in _GRADES:
+        return error(422, 'custom', ['Eingabe nicht erlaubt', f"Ihre Angabe für das Eingabefeld 'Klassenstufe' erfüllt "
+                                                              f"nicht die erforderlichen Bedingungen."])
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename != '':
+            data = file.stream.read().decode()
+            file.close()
+            try:
+                content, trigger_error = learning_set_upload(data, set_id)
+            except Exception as err:
+                return error(403, 'custom', ['Ein Fehler ist aufgetreten.',
+                                             f"Während dem erstellen des Lernsets ist folgender, unbekannter Fehler "
+                                             f"aufgetreten: \"{err}\""])
+            if trigger_error is not None:
+                return error(422, 'custom', ['Ein Fehler ist aufgetreten.',
+                                             f"Während dem erstellen des Lernsets ist folgender, unbekannter Fehler "
+                                             f"aufgetreten: \"{trigger_error}\""])
+            query_db('DELETE FROM learn_exercise WHERE set_id=?', (set_id,))
+            for _, (ex_id, v) in enumerate(content.items()):
+                query_db('INSERT INTO learn_exercise VALUES (?, ?, ?, ?, ?, ?, ?)',
+                         (ex_id, set_id, v['question'], v['answer'],
+                          v['answers'], v['frequency'], 0))
+    query_db('UPDATE learn_set SET title=?, subject=?, description=?, class=?, grade=?, language=?, edited=? '
+             'WHERE id=?', (form['title'], form['subject'], form['description'], form['class'], form['grade'],
+                            form['language'], get_current_time(), set_id))
+    return redirect('/lernsets')
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

@@ -26,10 +26,13 @@ window.addEventListener('DOMContentLoaded', function (){
     $('navbar-button_documents').addEventListener('click', function () {
         navbar_button('documents')
     }, false);
+    $('navbar-button_learning').addEventListener('click', function () {
+        navbar_button('learning')
+    }, false);
     $('navbar-button_about').addEventListener('click', function () {
         navbar_button('about');
     }, false);
-    const selector_lists = ['documents', 'about'];
+    const selector_lists = ['documents', 'about', 'learning'];
     for(let i = 0; i < selector_lists.length; i++){
         $('navbar-list_' + selector_lists[i]).style.display = 'none';
     }

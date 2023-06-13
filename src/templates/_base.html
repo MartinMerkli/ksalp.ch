@@ -35,6 +35,14 @@
                 <li class="navbar-second-element"><a href="/dokumente/klassenstufe" class="navbar-second-link">Meine Klassenstufe</a></li>
             {% endif %}
         </ul></li>
+        <li class="navbar-element"><span id="navbar-prefix_learning">&#9655; </span><a href="#" class="navbar-link" id="navbar-button_learning">Lernsets</a></li>
+        <li><ul class="navbar-second-list" id="navbar-list_learning">
+            <li class="navbar-second-element"><a href="/lernsets" class="navbar-second-link">Alle</a></li>
+            {% if signed_in %}
+                <li class="navbar-second-element"><a href="/lernsets/klasse" class="navbar-second-link">Meine Klasse</a></li>
+                <li class="navbar-second-element"><a href="/lernsets/klassenstufe" class="navbar-second-link">Meine Klassenstufe</a></li>
+            {% endif %}
+        </ul></li>
         <li class="navbar-element"><span class="navbar-hide">&#9655; </span></li>
         {% if signed_in %}
             <li class="navbar-element"><span class="navbar-hide">&#9655; </span><a href="/konto/abmelden" class="navbar-link">Abmelden</a></li>

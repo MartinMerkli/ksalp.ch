@@ -109,4 +109,5 @@ window.addEventListener('DOMContentLoaded', async function (){
     $_('dokumente_sort_created-f').addEventListener('click', function () {
         dokumente__sort('created', false);
     }, false);
+    navbar_button('documents');
 }, false);

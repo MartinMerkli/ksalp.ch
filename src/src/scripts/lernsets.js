@@ -103,4 +103,5 @@ window.addEventListener('DOMContentLoaded', async function (){
     $_('lernsets_sort_created-f').addEventListener('click', function () {
         lernsets__sort('created', false);
     }, false);
+    navbar_button('learning');
 }, false);

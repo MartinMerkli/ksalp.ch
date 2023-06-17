@@ -61,7 +61,7 @@
     <div class="comments-container">
         {% for comment in comments %}
             <div>
-                <p><b><i>{{ comment[0] }}</i></b> am {{ comment[1] }} <small><i>#{{ comment[2] }}</i></small>
+                <p class="_melden_inline"><b><i>{{ comment[0] }}</i></b> am {{ comment[1] }} <small><i>#{{ comment[2] }}</i></small>
                     <a href="/melden?typ=kommentar?id={{ comment[2] }}"></a></p>
                 <form action="/melden/post" method="post" class="_melden_inline">
                     <input type="hidden" name="type" value="kommentar">

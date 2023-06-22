@@ -628,7 +628,9 @@ def route_melden():
         author = context['id']
     else:
         author = request.access_route[-1]
-    abuse_report_log.critical(f"{int(context['signed_in'])}\t{author}\t{form['type']}\t{form['id']}")
+    message = f"{int(context['signed_in'])}\t{author}\t{form['type']}\t{form['id']}"
+    abuse_report_log.critical(message)
+    send_mail(environ['SMTP_ADDRESS'], 'Abuse Report ' + get_current_time(), f"<p>{message}</p>", message)
     return render_template('melden.html', **context)
 
 

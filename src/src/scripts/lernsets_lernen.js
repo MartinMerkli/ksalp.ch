@@ -163,7 +163,7 @@ function lernsets_learn__enter(event){
     }
 }
 const lernsets_learn__dataset = document.currentScript.dataset;
-lernsets_learn__selected = lernsets_learn__dataset['sets'].split('$')
+lernsets_learn__selected = lernsets_learn__dataset['sets'].split('$');
 window.addEventListener('DOMContentLoaded', async function (){
     lernsets_learn__switch_window('loading');
     $_('input').addEventListener('keypress', lernsets_learn__enter);

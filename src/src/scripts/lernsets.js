@@ -56,7 +56,7 @@ function lernsets__reload(){
             }
         }
     }
-    let content = '<div class="lernsets_box">';
+    let content = '<input type="submit" name="submit" value="Lernmodus starten" class="input-button center"><div class="lernsets_box">';
     for(let i=0; i < lernsets__sets.length; i++){
         if(!(ignored.includes(i))){
             content += `<label id="${lernsets__sets[i]['id']}">

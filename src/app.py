@@ -1328,6 +1328,8 @@ def route_lernsets_stats():
 @app.route('/lernsets/start', methods=['POST'])
 def route_lernsets_start():
     form = dict(request.form)
+    if 'submit' in form:
+        del form['submit']
     selected_sets = form.keys()
     return redirect(f"/lernsets/lernen/{'$'.join(selected_sets)}")
 

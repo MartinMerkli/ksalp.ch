@@ -440,7 +440,7 @@ def learning_set_upload(data, set_id):
         for line in lines:
             if '; ' in line:
                 parts = line.split('; ')
-                content[set_id + '.' + rand_base64(12)] = {'question': parts[0], 'answer': parts[1].split('$'),
+                content[set_id + '.' + rand_base64(12)] = {'question': parts[0], 'answer': parts[1].split('$')[0],
                                                            'answers': parts[1], 'frequency': 1.0}
         if not content:
             trigger_error = 'Die Datei enthält keine zulässigen Aufgaben. Bitte überprüfen Sie den Inhalt der Datei.'

@@ -56,7 +56,7 @@ function lernsets__reload(){
             }
         }
     }
-    let content = '';
+    let content = '<div class="lernsets_box">';
     for(let i=0; i < lernsets__sets.length; i++){
         if(!(ignored.includes(i))){
             content += `<label id="${lernsets__sets[i]['id']}">
@@ -67,7 +67,7 @@ von <i>${lernsets__sets[i]['owner']}</i></p>
 <input type="checkbox" name="${lernsets__sets[i]['id']}" value="${lernsets__sets[i]['id']}"></label>`;
         }
     }
-    content += `<input type="submit" name="submit" value="Lernmodus starten" class="input-button center">`;
+    content += `</div><input type="submit" name="submit" value="Lernmodus starten" class="input-button center">`;
     $('lernsets_box').innerHTML = content;
 }
 const lernsets__dataset = document.currentScript.dataset;

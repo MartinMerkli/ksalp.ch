@@ -306,8 +306,10 @@ body{
 /* lernsets */
 .lernsets_box{
     margin-top: 1em;
-    display: inline-grid;
+    display: grid;
     padding: 0.1em;
+    grid-template-columns: auto;
+    width: calc(100vw - 5em);
 }
 .lernsets_box label{
     border-style: solid;
@@ -318,6 +320,8 @@ body{
     padding: 0.25em 0.7em;
     display: inline;
     float: none;
+    width: calc(100vw - 2 * 1em);
+    margin: 0.5em;
 }
 .lernsets_box input[type=checkbox]{
     border-radius: 1em;
@@ -372,5 +376,12 @@ body{
     }
     .dokumente-vorschau_iframe{
         width: calc(100vw - 12em - 2 * 0.8em - 2 * 1em);
+    }
+    .lernsets_box{
+        grid-template-columns: auto auto auto;
+        width: calc(100vw - 12em - 2 * 0.8em - 2 * 1em);
+    }
+    .lernsets_box label{
+        width: calc((100vw - 12em - 2 * 0.8em - 2 * 1em) / 2 - 2em);
     }
 }

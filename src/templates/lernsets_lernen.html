@@ -3,7 +3,7 @@
 {% block title %}Lernsets{% endblock %}
 
 {% block main %}
-    <script rel="/src/scripts/lernsets_lernern.js" data-login="{% if signed_in %}True{% endif %}" data-sets="{{ sets }}"></script>
+    <script src="/src/scripts/lernsets_lernern.js" data-login="{% if signed_in %}True{% endif %}" data-sets="{{ sets }}"></script>
     <div class="center">
         <div id="lernsets-learn_div_connection-error">
             <h2 class="error">Statistiken wurden nicht gespeichert, da keine Verbindung zum Server hergestellt werden konnte.</h2>

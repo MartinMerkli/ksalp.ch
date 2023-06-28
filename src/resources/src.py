@@ -39,6 +39,7 @@ FILE_TYPES = {
     'scripts/konto_registrieren.js': 'text/javascript',
     'scripts/navbar.js': 'text/javascript',
     'scripts/lernsets.js': 'text/javascript',
+    'scripts/lernsets_lernen.js': 'text/javascript',
 }
 GRADES = [
     '-',

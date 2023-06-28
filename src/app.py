@@ -1521,6 +1521,14 @@ def route_lernsets_bearbeiten_post():
     return redirect('/lernsets')
 
 
+@app.route('/lernsets/lernen/<string:sets>', methods=['GET'])
+def route_lernsets_lernen(sets):
+    context = create_context(session)
+    if is_banned(3, context['banned']):
+        return error(403, 'banned', [3])
+    return render_template('lernsets_lernen.html', **context, sets=sets)
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

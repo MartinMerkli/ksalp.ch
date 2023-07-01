@@ -1303,7 +1303,7 @@ def route_lernsets_stats():
         return 'error: not signed-in', 401
     sets_ = request.args.get('sets', default='', type=str)
     sets = sets_.split('$')
-    indices = ['id', 'set_id', 'question', 'answer', 'answers', 'frequency', 'auto_check']
+    indices = ['id', 'exercise_id', 'correct', 'wrong']
     if sets_:
         allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
         for char in sets_:

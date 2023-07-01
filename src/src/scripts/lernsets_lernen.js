@@ -182,9 +182,9 @@ window.addEventListener('DOMContentLoaded', async function (){
     }
     let lernsets_learn__sets_response = await fetch('/lernsets/sets.json?sets=' + lernsets_learn__dataset['sets']);
     lernsets_learn__sets = await lernsets_learn__sets_response.json();
-    let lernsets_learn__exercises_response = await fetch('lernsets/exercises.json?sets=' + lernsets_learn__dataset['sets']);
+    let lernsets_learn__exercises_response = await fetch('/lernsets/exercises.json?sets=' + lernsets_learn__dataset['sets']);
     lernsets_learn__exercises = await lernsets_learn__exercises_response.json();
-    let lernsets_learn__stats_response = await fetch('lernsets/stats.json?sets=' + lernsets_learn__dataset['sets']);
+    let lernsets_learn__stats_response = await fetch('/lernsets/stats.json?sets=' + lernsets_learn__dataset['sets']);
     lernsets_learn__stats = await lernsets_learn__stats_response.json();
     lernsets_learn__next_exercise();
 }, false);

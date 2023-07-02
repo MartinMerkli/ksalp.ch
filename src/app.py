@@ -1283,7 +1283,7 @@ def route_lernsets_exercises():
                 return 'error: request contains characters that are not allowed', 400
         query = []
         for i in sets:
-            query.append(f"id='{i}'")
+            query.append(f"set_id='{i}'")
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise WHERE {' OR '.join(query)}")  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise")  # noqa

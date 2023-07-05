@@ -56,7 +56,7 @@ function lernsets_learn__update_stats(){
 }
 function lernsets_learn__connection_error(e=''){
     console.error(`an error occurred while trying to connect to the server: \n    ${e}`);
-    $_('connection-error').style.display = '';
+    $_('div_connection-error').style.display = '';
 }
 function lernsets_learn__save_answer(exercise_id, answer, correct){
     if(lernsets_learn__stats.hasOwnProperty(exercise_id)){

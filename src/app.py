@@ -1261,13 +1261,13 @@ def route_lernsets_sets():
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {' OR '.join(query)}")  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_set")  # noqa
-    learn_sets = []
+    learn_sets = {}
     for _, val in enumerate(result):
         learn_set = {}
         for i, v in enumerate(indices):
             learn_set[v] = val[i]
         learn_set['owner'] = account_name(learn_set['owner'])
-        learn_sets.append(learn_set)
+        learn_sets[learn_set['id']] = learn_set
     return jsonify(learn_sets)
 
 
@@ -1287,12 +1287,12 @@ def route_lernsets_exercises():
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise WHERE {' OR '.join(query)}")  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_exercise")  # noqa
-    exercises = []
+    exercises = {}
     for _, val in enumerate(result):
         exercise = {}
         for i, v in enumerate(indices):
             exercise[v] = val[i]
-        exercises.append(exercise)
+        exercises[exercise['id']] = exercise
     return jsonify(exercises)
 
 
@@ -1316,12 +1316,12 @@ def route_lernsets_stats():
                           f"({' OR '.join(query)})", (context['id'],))  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_stat")  # noqa
-    stats = []
+    stats = {}
     for _, val in enumerate(result):
         stat = {}
         for i, v in enumerate(indices):
             stat[v] = val[i]
-        stats.append(stat)
+        stats[stat['id']] = stat
     return jsonify(stats)
 
 

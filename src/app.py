@@ -810,7 +810,7 @@ def route_konto_anmelden2():
         fail = True
     if fail:
         return error(422, 'custom', ['Falsches Passwort oder E-Mail',
-                                     'Entweder wurde das falsche Passwort eingegeben oder ein Konto mit dieser E-Mail '
+                                     'Entweder wurde ein falsches Passwort eingegeben oder ein Konto mit dieser E-Mail '
                                      'existiert nicht. Damit Hacker*innen nicht herausfinden können, ob eine '
                                      'spezifische E-Mail-Adresse registriert ist, wird keine genauere Auskunft '
                                      'gegeben.'])

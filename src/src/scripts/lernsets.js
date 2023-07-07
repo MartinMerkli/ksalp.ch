@@ -75,11 +75,11 @@ let lernsets__sets = {};
 window.addEventListener('DOMContentLoaded', async function (){
     let lernsets__response;
     if (lernsets__dataset['class'] !== ''){
-        lernsets__response = await fetch('/lernsets/sets.json?class=' + lernsets__dataset['class']);
+        lernsets__response = await fetch('/lernsets/sets.json?as_list=true&class=' + lernsets__dataset['class']);
     } else if (lernsets__dataset['grade'] !== ''){
-        lernsets__response = await fetch('/lernsets/sets.json?grade=' + lernsets__dataset['grade']);
+        lernsets__response = await fetch('/lernsets/sets.json?as_list=true&grade=' + lernsets__dataset['grade']);
     } else {
-        lernsets__response = await fetch('/lernsets/sets.json');
+        lernsets__response = await fetch('/lernsets/sets.json?as_list=true');
     }
     lernsets__sets = await lernsets__response.json();
     function $_(id){

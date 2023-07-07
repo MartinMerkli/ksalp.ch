@@ -1244,6 +1244,7 @@ def route_lernsets_sets():
     class_ = request.args.get('class', default='', type=str)
     grade_ = request.args.get('grade', default='', type=str)
     sets_ = request.args.get('sets', default='', type=str)
+    as_list = request.args.get('as_list', default=False, type=bool)
     sets = sets_.split('$')
     indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created']
     if class_:
@@ -1261,13 +1262,22 @@ def route_lernsets_sets():
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {' OR '.join(query)}")  # noqa
     else:
         result = query_db(f"SELECT {', '.join(indices)} FROM learn_set")  # noqa
-    learn_sets = {}
-    for _, val in enumerate(result):
-        learn_set = {}
-        for i, v in enumerate(indices):
-            learn_set[v] = val[i]
-        learn_set['owner'] = account_name(learn_set['owner'])
-        learn_sets[learn_set['id']] = learn_set
+    if as_list:
+        learn_sets = []
+        for _, val in enumerate(result):
+            learn_set = {}
+            for i, v in enumerate(indices):
+                learn_set[v] = val[i]
+            learn_set['owner'] = account_name(learn_set['owner'])
+            learn_sets.append(learn_set)
+    else:
+        learn_sets = {}
+        for _, val in enumerate(result):
+            learn_set = {}
+            for i, v in enumerate(indices):
+                learn_set[v] = val[i]
+            learn_set['owner'] = account_name(learn_set['owner'])
+            learn_sets[learn_set['id']] = learn_set
     return jsonify(learn_sets)
 
 

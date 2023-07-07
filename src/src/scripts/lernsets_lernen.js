@@ -48,9 +48,7 @@ function lernsets_learn__update_stats(){
     }
     $_('exercise-name').innerText = name;
     $_('result-name').innerText = name;
-    let id = `Aufgabe #${lernsets_learn__current.split('.')[1]} vom Lernset 
-    '${lernsets_learn__sets[lernsets_learn__exercises[lernsets_learn__current]['set_id']]['title']}' 
-    (#${lernsets_learn__exercises[lernsets_learn__current]['set_id']})`;
+    let id = `Aufgabe #${lernsets_learn__current.split('.')[1]} vom Lernset '[${lernsets_learn__sets[lernsets_learn__exercises[lernsets_learn__current]['set_id']]['subject'].toUpperCase()}] ${lernsets_learn__sets[lernsets_learn__exercises[lernsets_learn__current]['set_id']]['title']}' (#${lernsets_learn__exercises[lernsets_learn__current]['set_id']})`;
     $_('exercise-id').innerText = id;
     $_('result-id').innerText = id;
 }

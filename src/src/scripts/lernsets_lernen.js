@@ -182,7 +182,11 @@ window.addEventListener('DOMContentLoaded', async function (){
     lernsets_learn__sets = await lernsets_learn__sets_response.json();
     let lernsets_learn__exercises_response = await fetch('/lernsets/exercises.json?sets=' + lernsets_learn__dataset['sets']);
     lernsets_learn__exercises = await lernsets_learn__exercises_response.json();
-    let lernsets_learn__stats_response = await fetch('/lernsets/stats.json?sets=' + lernsets_learn__dataset['sets']);
-    lernsets_learn__stats = await lernsets_learn__stats_response.json();
+    if(lernsets_learn__login){
+        let lernsets_learn__stats_response = await fetch('/lernsets/stats.json?sets=' + lernsets_learn__dataset['sets']);
+        lernsets_learn__stats = await lernsets_learn__stats_response.json();
+    }else{
+        lernsets_learn__stats = {}
+    }
     lernsets_learn__next_exercise();
 }, false);

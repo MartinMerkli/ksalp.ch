@@ -26,6 +26,9 @@ body{
     z-index: 0;
     font-size: calc(var(--scale) * 100%);
 }
+input[type="submit"]{
+    color: var(--fg);
+}
 .header{
     width: 100vw;
     padding: 0;

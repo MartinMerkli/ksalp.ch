@@ -26,9 +26,6 @@ body{
     z-index: 0;
     font-size: calc(var(--scale) * 100%);
 }
-input[type="submit"]{
-    color: var(--fg);
-}
 .header{
     width: 100vw;
     padding: 0;
@@ -332,6 +329,9 @@ input[type="submit"]{
     background-color: var(--bg);
     padding: 0.25em;
     transform: scale(1.5);
+}
+.lernsets_box input[type="submit"]{
+    color: var(--fg);
 }
 
 /* SCALING */

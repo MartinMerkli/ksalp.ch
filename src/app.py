@@ -1338,8 +1338,9 @@ def route_lernsets_stats():
 @app.route('/lernsets/start', methods=['POST'])
 def route_lernsets_start():
     form = dict(request.form)
-    if 'submit' in form:
-        del form['submit']
+    for i in ['submit', 'submit1', 'submit2']:
+        if i in form:
+            del form[i]
     selected_sets = form.keys()
     return redirect(f"/lernsets/lernen/{'$'.join(selected_sets)}")
 
@@ -1531,11 +1532,20 @@ def route_lernsets_bearbeiten_post():
     return redirect('/lernsets')
 
 
+@app.route('/lernsets/lernen/', methods=['GET'])
+def route_lernsets_lernen_():
+    return error(400, 'custom', ['Keine Auswahl',
+                                 'Sie haben keine Lernsets ausgewählt. Das Lernprogramm kann nicht gestartet werden'])
+
+
 @app.route('/lernsets/lernen/<string:sets>', methods=['GET'])
 def route_lernsets_lernen(sets):
     context = create_context(session)
     if is_banned(3, context['banned']):
         return error(403, 'banned', [3])
+    if not sets:
+        return error(400, 'custom', ['Keine Auswahl',
+                                     'Sie haben keine Lernsets ausgewählt. Das Lernprogramm kann nicht gestartet werden'])
     return render_template('lernsets_lernen.html', **context, sets=sets)
 
 

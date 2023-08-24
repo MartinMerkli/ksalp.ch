@@ -1248,9 +1248,9 @@ def route_lernsets_sets():
     sets = sets_.split('$')
     indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created']
     if class_:
-        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE class=?", (class_,))  # noqa
+        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE class=?", (class_,))  # noqa
     elif grade_:
-        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE grade=?", (grade_,))  # noqa
+        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE grade=?", (grade_,))  # noqa
     elif sets_:
         allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
         for char in sets_:
@@ -1259,24 +1259,32 @@ def route_lernsets_sets():
         query = []
         for i in sets:
             query.append(f"id='{i}'")
-        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {' OR '.join(query)}")  # noqa
+        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {' OR '.join(query)}")  # noqa
     else:
-        result = query_db(f"SELECT {', '.join(indices)} FROM learn_set")  # noqa
+        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set")  # noqa
     if as_list:
         learn_sets = []
-        for _, val in enumerate(result):
+        for _, val in enumerate(result1):
             learn_set = {}
             for i, v in enumerate(indices):
                 learn_set[v] = val[i]
             learn_set['owner'] = account_name(learn_set['owner'])
+            result2 = query_db('SELECT id FROM learn_exercise WHERE set_id=?', (learn_set['id'],))
+            learn_set['size'] = '0'
+            if result2:
+                learn_set['size'] = str(len(result2))
             learn_sets.append(learn_set)
     else:
         learn_sets = {}
-        for _, val in enumerate(result):
+        for _, val in enumerate(result1):
             learn_set = {}
             for i, v in enumerate(indices):
                 learn_set[v] = val[i]
             learn_set['owner'] = account_name(learn_set['owner'])
+            result2 = query_db('SELECT id FROM learn_exercise WHERE set_id=?', (learn_set['id'],))
+            learn_set['size'] = '0'
+            if result2:
+                learn_set['size'] = str(len(result2))
             learn_sets[learn_set['id']] = learn_set
     return jsonify(learn_sets)
 

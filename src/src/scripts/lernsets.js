@@ -61,7 +61,7 @@ function lernsets__reload(){
         if(!(ignored.includes(i))){
             content += `<label id="${lernsets__sets[i]['id']}">
 <h3>[${lernsets__sets[i]['subject']}] ${lernsets__sets[i]['title']}</h3>
-<span><a href="/lernsets/vorschau/${lernsets__sets[i]['id']}">Vorschau</a></span>
+<p><a href="/lernsets/vorschau/${lernsets__sets[i]['id']}">Vorschau</a> | ${lernsets__sets[i]['size']} Einträge</p>
 <p> Zuletzt bearbeitet am 
 ${lernsets__sets[i]['edited'].split('_')[0]}, erstellt am ${lernsets__sets[i]['created'].split('_')[0]} 
 von <i>${lernsets__sets[i]['owner']}</i></p>

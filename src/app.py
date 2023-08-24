@@ -653,6 +653,8 @@ def route_kommentar_neu():
     match type_:
         case 'dokument':
             return redirect(f"/dokumente/vorschau/{id_}")
+        case 'lernset':
+            return redirect(f"/lernsets/vorschau/{id_}")
         case _:
             pass
     return redirect('/')
@@ -1588,7 +1590,7 @@ def route_lernsets_vorschau(set_id):
     result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (set_id,))
     for i in result3:
         comments.append([account_name(i[2]), i[3], i[0], i[1]])
-    return render_template('lernsets_vorschau.html', **context, subject=result1[1], title=result1[0],
+    return render_template('lernsets_vorschau.html', **context, subject=result1[1], title=result1[0], comments=comments,
                            edited1=result1[7].split('_')[0], edited2=result1[7].split('_')[1].replace('-', ':'),
                            created1=result1[8].split('_')[0], created2=result1[8].split('_')[1].replace('-', ':'),
                            author=account_name(result1[6]), size=len(result2), lernset=lernset, lernset_id=set_id)

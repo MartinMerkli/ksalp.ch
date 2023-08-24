@@ -60,7 +60,7 @@ function dokumente__reload(){
     for(let i=0; i < dokumente__documents.length; i++){
         if(!(ignored.includes(i))){
             content += `<div id="${dokumente__documents[i]['id']}">
-<h3><b>${dokumente__documents[i]['subject']}</b> ${dokumente__documents[i]['title']}</h3>
+<h3>[${dokumente__documents[i]['subject']}] ${dokumente__documents[i]['title']}</h3>
 <p>[${dokumente__documents[i]['extension'].toUpperCase()}] Zuletzt bearbeitet am 
 ${dokumente__documents[i]['edited'].split('_')[0]}, erstellt am ${dokumente__documents[i]['created'].split('_')[0]} 
 von <i>${dokumente__documents[i]['owner']}</i></p></div>`;

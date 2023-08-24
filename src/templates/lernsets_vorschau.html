@@ -1,0 +1,80 @@
+{% extends '_base.html' %}
+
+{% block title %}Vorschau '[{{ subject }}] {{ title }}'{% endblock %}
+
+{% block main %}
+    <h2 class="center">[{{ subject }}] {{ title }}</h2>
+    <p class="center"><b>{{ size }}</b> Einträge&emsp;Zuletzt bearbeitet am <b>{{ edited1 }}</b> um
+        {{ edited2 }} Uhr&emsp;Erstellt am <b>{{ created1 }}</b> um {{ created2 }} Uhr&emsp;Hochgeladen von
+        <b><i>{{ author }}</i></b></p>
+    <p class="center"><small>Klasse: {{ lernset_class }}&emsp;Klassenstufe: {{ lernset_grade }}&emsp;Sprache: {{ lernset_language }}&emsp;ID: <i>#{{ lernset_id }}</i></small></p>
+    <div class="center">
+        <p class="_melden_inline">
+            {% if is_owner %}
+                <a class="footer-link" href="/lernsets/bearbeiten?id={{ lernset_id }}" target="_blank">Bearbeiten</a> &emsp;
+            {% endif %}
+        </p>
+        <form action="/lernsets/statistics/delete" method="post" class="_melden_inline">
+            <input type="hidden" name="id" value="{{ lernset_id }}">
+            <input type="submit" name="submit" value="Statistiken löschen" class="_melden_link-button">
+        </form>
+        <form action="/melden/post" method="post" class="_melden_inline" target="_blank">
+            <input type="hidden" name="type" value="lernset">
+            <input type="hidden" name="id" value="{{ lernset_id }}">
+            <input type="submit" name="submit" value="Unangebrachter Inhalt melden" class="_melden_link-button">
+        </form>
+    </div>
+    <br>
+    <h3>Beschreibung</h3>
+    <p><i>{{ description }}</i></p>
+    <br>
+    <h3>Inhalt</h3>
+    <ol class="lernsets-vorschau_list">
+        {% for element in lernset %}
+            <li><div class="lernsets-vorschau_element">
+                <p><small>#{{ element[0] }}</small></p>
+                <p><b>Aufgabe: <i>{{ element[1] }}</i></b></p>
+                <p>Musterlösung: <i>{{ element[2] }}</i></p>
+                {% if signed_in %}
+                    <p>Richtig: {{ element[3] }} | Falsch: {{ element[4] }}</p>
+                {% endif %}
+                <br>
+            </div></li>
+        {% endfor %}
+    </ol>
+    <h3>Kommentare</h3>
+    {% if signed_in %}
+        <h4>Neuen Kommentar verfassen</h4>
+        <form action="/kommentar/neu?typ=lernset&id={{ lernset_id }}" method="post">
+            <fieldset class="konto-registrieren_fieldset">
+                <div>
+                    <label for="lernsets-vorschau_kommentar-comment">Kommentar: </label>
+                    <br>
+                    <input type="text" id="lernsets-vorschau_kommentar-comment" name="comment" required placeholder="..." minlength="1" maxlength="2048" class="input-text">
+                </div>
+                <br>
+                <div>
+                    <label for="konto-registrieren_submit">Metadaten werden öffentlich sichtbar sein.</label>
+                    <br>
+                    <input type="submit" id="konto-registrieren_submit" name="submit" value="Veröffentlichen" class="input-button">
+                </div>
+            </fieldset>
+        </form>
+    {% else %}
+        <p>Sie müssen angemeldet sein, um Kommentare zu verfassen.</p>
+    {% endif %}
+    <div class="comments-container">
+        {% for comment in comments %}
+            <div>
+                <p class="_melden_inline"><b><i>{{ comment[0] }}</i></b> am {{ comment[1] }} <small><i>#{{ comment[2] }}</i></small>
+                    <a href="/melden?typ=kommentar?id={{ comment[2] }}"></a></p>
+                <form action="/melden/post" method="post" class="_melden_inline">
+                    <input type="hidden" name="type" value="kommentar">
+                    <input type="hidden" name="id" value="{{ comment[2] }}">
+                    <input type="submit" name="Melden" value="Melden" class="_melden_link-button">
+                </form>
+                <p><i>{{ comment[3] }}</i></p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

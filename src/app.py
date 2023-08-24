@@ -1549,6 +1549,62 @@ def route_lernsets_lernen(sets):
     return render_template('lernsets_lernen.html', **context, sets=sets)
 
 
+@app.route('/lernsets/vorschau/<string:set_id>', methods=['GET'])
+def route_lernsets_vorschau(set_id):
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    result1 = query_db('SELECT title, subject, description, class, grade, language, owner, edited, created FROM learn_set '
+                       'WHERE id=?', (set_id,), True)
+    if not result1:
+        return error(404)
+    lernset = []
+    result2 = query_db('SELECT id, question, answer FROM learn_exercise WHERE set_id=?', (set_id,))
+    stats = {}
+    if context['signed_in']:
+        query = []
+        for v in result2:
+            query.append(f"exercise_id='{v[0]}'")
+        result3 = query_db(f"SELECT exercise_id, correct, wrong FROM learn_stat WHERE owner=? "  # noqa
+                           f"AND ({' OR '.join(query)})", (context['id'],))
+        for v in result3:
+            stats[v[0]] = {'true': v[1], 'false': v[2]}
+    for v in result2:
+        if context['signed_in']:
+            cur_stats = stats.get(v[0], {'true': 0, 'false': 0})
+        else:
+            cur_stats = {'true': 0, 'false': 0}
+        lernset.append([v[0], v[1], v[2], cur_stats['true'], cur_stats['false']])
+    comments = []
+    result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (set_id,))
+    for i in result3:
+        comments.append([account_name(i[2]), i[3], i[0], i[1]])
+    return render_template('lernsets_vorschau.html', **context, subject=result1[1], title=result1[0],
+                           edited1=result1[7].split('_')[0], edited2=result1[7].split('_')[1].replace('-', ':'),
+                           created1=result1[8].split('_')[0], created2=result1[8].split('_')[1].replace('-', ':'),
+                           author=account_name(result1[6]), size=len(result2), lernset=lernset, lernset_id=set_id)
+
+
+@app.route('/lernsets/statistics/delete', methods=['POST'])
+def route_lernsets_statistics_delete():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['signed_in']:
+        return error(401, 'account')
+    form = dict(request.form)
+    if 'id' not in form:
+        return error(400, 'form-missing')
+    result = query_db('SELECT id FROM learn_exercise WHERE set_id=?', (form['id']))
+    if not result:
+        return error(404)
+    query = []
+    for v in result:
+        query.append(f"exercise_id='{v[0]}'")
+    query_db(f"DELETE FROM learn_stat WHERE owner=? AND ({' OR '.join(query)})", (context['id'],))  # noqa
+    return redirect(f"/lernsets/vorschau/{form['id']}")
+
+
 ########################################################################################################################
 # MAIN
 ########################################################################################################################

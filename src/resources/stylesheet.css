@@ -334,6 +334,19 @@ body{
     color: var(--fg);
 }
 
+/* lernsets_vorschau */
+.lernsets-vorschau_list{
+    border-color: var(--root-query);
+    border-style: solid;
+    border-width: 0.1em;
+    border-radius: 1em;
+    list-style: none;
+}
+.lernsets-vorschau_element{
+    display: inline;
+    float: none;
+}
+
 /* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {
     .navbar{

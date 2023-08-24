@@ -1573,10 +1573,11 @@ def route_lernsets_vorschau(set_id):
         query = []
         for v in result2:
             query.append(f"exercise_id='{v[0]}'")
-        result3 = query_db(f"SELECT exercise_id, correct, wrong FROM learn_stat WHERE owner=? "  # noqa
-                           f"AND ({' OR '.join(query)})", (context['id'],))
-        for v in result3:
-            stats[v[0]] = {'true': v[1], 'false': v[2]}
+        if len(query) > 0:
+            result3 = query_db(f"SELECT exercise_id, correct, wrong FROM learn_stat WHERE owner=? "  # noqa
+                               f"AND ({' OR '.join(query)})", (context['id'],))
+            for v in result3:
+                stats[v[0]] = {'true': v[1], 'false': v[2]}
     for v in result2:
         if context['signed_in']:
             cur_stats = stats.get(v[0], {'true': 0, 'false': 0})

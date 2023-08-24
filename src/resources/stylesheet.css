@@ -320,7 +320,7 @@ body{
     padding: 0.25em 0.7em;
     display: inline;
     float: none;
-    width: calc(100vw - 2 * 1em);
+    width: calc(100vw - 5em);
     margin: 0.5em;
 }
 .lernsets_box input[type=checkbox]{

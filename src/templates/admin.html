@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block main %}
+    <h3>Links</h3>
+    <p><a href="/admin/sql">Datenbank</a> | <a href="/admin/sql/tabellen">Datenbank Tabellen</a></p>
+    <h3>Premium</h3>
+    <form action="/admin/premium" method="post">
+        <fieldset class="konto-registrieren_fieldset">
+            <div>
+                <label for="admin_premium-account">Konto ID: </label>
+                <br>
+                <input type="text" id="admin_premium-account" name="account" required placeholder="" class="input-text" minlength="8" maxlength="8">
+            </div>
+            <br>
+            <div>
+                <label for="admin_premium-date">Ablaufdatum: </label>
+                <br>
+                <input type="text" id="admin_premium-date" name="date" value="{{ next_year }}" required placeholder="YYYY-MM-DD_HH-MM-SS" class="input-text" minlength="19" maxlength="19">
+            </div>
+            <br>
+            <div>
+                <label for="admin_premium-submit"></label>
+                <br>
+                <input type="submit" id="admin_premium-submit" name="submit" value="Hinzufügen" class="input-button">
+            </div>
+            <br>
+        </fieldset>
+    </form>
+{% endblock %}

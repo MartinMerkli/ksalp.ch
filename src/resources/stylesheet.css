@@ -347,6 +347,12 @@ body{
     float: none;
 }
 
+#admin-sql_table td{
+    border-color: var(--root-query);
+    border-style: solid;
+    border-width: 0.1em;
+}
+
 /* SCALING */
 @media (max-width: calc(§scale§ * 36em)) {
     .navbar{

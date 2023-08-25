@@ -290,7 +290,8 @@ def create_context(session_cookie):
         'iframe': False,
         'search_engine': 'DuckDuckGo',
         'class_': '',
-        'grade': ''
+        'grade': '',
+        'is_admin': False,
     }
     if 'account' in session_cookie:
         result1 = query_db('select valid, account from login where id = ?', (session_cookie['account'],), True)
@@ -308,6 +309,8 @@ def create_context(session_cookie):
             context[v] = result2[i]
         context['signed_in'] = True
         context['paid'] = context['payment'] >= get_current_time()
+        if context['id'] in environ['KSALP_ADMINS'].split('$'):
+            context['is_admin'] = True
     return context
 
 
@@ -346,7 +349,7 @@ def scan_request(r, session_cookie):
     before = score
 
     if 0 < score < 3:
-        instance = AnalyzerRequest(r, ['controlpanel'])
+        instance = AnalyzerRequest(r, ['controlpanel', 'admin'])
         bot_rating = instance.bot()
         search_rating = instance.search_engine()
         malicious_rating = instance.malicious()
@@ -1614,6 +1617,71 @@ def route_lernsets_statistics_delete():
         query.append(f"exercise_id='{v[0]}'")
     query_db(f"DELETE FROM learn_stat WHERE owner=? AND ({' OR '.join(query)})", (context['id'],))  # noqa
     return redirect(f"/lernsets/vorschau/{form['id']}")
+
+
+########################################################################################################################
+# ADMIN
+########################################################################################################################
+
+
+@app.route('/admin', methods=['GET'])
+def route_admin():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['is_admin']:
+        return error(401, 'account')
+    next_year = (datetime.now() + timedelta(days=366)).strftime('%Y-%m-%d_%H-%M-%S')
+    return render_template('admin.html', **context, next_year=next_year)
+
+
+@app.route('/admin/premium', methods=['POST'])
+def route_admin_premium():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['is_admin']:
+        return error(401, 'account')
+    form = dict(request.form)
+    for i in ['account', 'date']:
+        if i not in form:
+            return error(400, 'form-missing')
+    query_db('UPDATE account SET payment=? WHERE ID=?', (form['date'], form['account']))
+    return redirect('/admin')
+
+
+@app.route('/admin/sql', methods=['GET'])
+def route_admin_sql():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['is_admin']:
+        return error(401, 'account')
+    return render_template('admin_sql.html', **context)
+
+
+@app.route('/admin/sql/post', methods=['POST'])
+def route_admin_sql_post():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['is_admin']:
+        return error(401, 'account')
+    command = request.data.decode()
+    return query_db(command)
+
+
+@app.route('/admin/sql/tabellen', methods=['GET'])
+def route_admin_sql_tabellen():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    if not context['is_admin']:
+        return error(401, 'account')
+    table = []
+    for key in db_tables:
+        table.append([key, db_tables[key]])
+    return render_template('admin_sql_tabellen.html', **context, table=table)
 
 
 ########################################################################################################################

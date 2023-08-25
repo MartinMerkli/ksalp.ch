@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block main %}
+    <script src="/src/scripts/admin_sql.js"></script>
+    <h3>Links</h3>
+    <p><a href="/admin">Admin Panel</a> | <a href="/admin/sql/tabellen">Datenbank Tabellen</a></p>
+    <h3>Eingabe</h3>
+    <label for="admin-sql_input">SQL-Befehl</label>
+    <input type="text" id="admin-sql_input" class="input-text">
+    <h3>Ausgabe</h3>
+    <table id="admin-sql_table"></table>
+{% endblock %}

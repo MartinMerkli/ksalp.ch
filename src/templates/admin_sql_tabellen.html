@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block main %}
+    <script src="/src/scripts/admin_sql.js"></script>
+    <h3>Links</h3>
+    <p><a href="/admin">Admin Panel</a> | <a href="/admin/sql">Datenbank</a></p>
+    <h3>Tabellen</h3>
+    <table>
+        {% for element in table %}
+            <tr>
+                <th>{{ element[0] }}</th>
+                {% for elem in element[1] %}
+                    <td>{{ elem }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

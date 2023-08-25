@@ -40,6 +40,7 @@ FILE_TYPES = {
     'scripts/navbar.js': 'text/javascript',
     'scripts/lernsets.js': 'text/javascript',
     'scripts/lernsets_lernen.js': 'text/javascript',
+    'scripts/admin_sql.js': 'text/javascript',
 }
 GRADES = [
     '-',

@@ -1019,6 +1019,9 @@ def route_dokumente_vorschau(doc_id):
         allow_iframe = bool(context['iframe'])
     iframe_available = True  # temporary
     download = f"{secure_filename(result1[0])}.{result1[9].lower()}"
+    if context['signed_in']:
+        if context['id'] == result1[6]:
+            is_owner = True
     comments = []
     result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (doc_id,))
     for i in result3:
@@ -1029,7 +1032,7 @@ def route_dokumente_vorschau(doc_id):
                            created2=result1[8].split('_')[1].replace('-', ':'), author=account_name(result1[6]),
                            doc_class=result1[3], doc_grade=result1[4], doc_language=result1[5], document_id=doc_id,
                            download=download, allow_iframe=allow_iframe, iframe_available=iframe_available,
-                           comments=comments, description=result1[2])
+                           comments=comments, description=result1[2], is_owner=is_owner)
 
 
 @app.route('/dokumente/dokument/<string:doc_id>/<path:_>', methods=['GET'])
@@ -1607,6 +1610,10 @@ def route_lernsets_vorschau(set_id):
         else:
             cur_stats = {'true': 0, 'false': 0}
         lernset.append([v[0], v[1], v[2], cur_stats['true'], cur_stats['false']])
+    is_owner = False
+    if context['signed_in']:
+        if context['id'] == result1[6]:
+            is_owner = True
     comments = []
     result3 = query_db('SELECT id, content, author, posted FROM comment WHERE document=?', (set_id,))
     for i in result3:
@@ -1614,7 +1621,8 @@ def route_lernsets_vorschau(set_id):
     return render_template('lernsets_vorschau.html', **context, subject=result1[1], title=result1[0], comments=comments,
                            edited1=result1[7].split('_')[0], edited2=result1[7].split('_')[1].replace('-', ':'),
                            created1=result1[8].split('_')[0], created2=result1[8].split('_')[1].replace('-', ':'),
-                           author=account_name(result1[6]), size=len(result2), lernset=lernset, lernset_id=set_id)
+                           author=account_name(result1[6]), size=len(result2), lernset=lernset, lernset_id=set_id,
+                           is_owner=is_owner)
 
 
 @app.route('/lernsets/statistics/delete', methods=['POST'])

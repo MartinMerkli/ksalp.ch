@@ -1019,6 +1019,7 @@ def route_dokumente_vorschau(doc_id):
         allow_iframe = bool(context['iframe'])
     iframe_available = True  # temporary
     download = f"{secure_filename(result1[0])}.{result1[9].lower()}"
+    is_owner = False
     if context['signed_in']:
         if context['id'] == result1[6]:
             is_owner = True

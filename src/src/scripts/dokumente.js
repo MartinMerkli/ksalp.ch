@@ -48,7 +48,7 @@ function dokumente__reload(){
                             ignored.push(j);
                         }
                     }else{
-                        if(!(copy[j][inputs[i]].includes(value))){
+                        if(!(copy[j][inputs[i]].toLowerCase().includes(value))){
                             ignored.push(j);
                         }
                     }

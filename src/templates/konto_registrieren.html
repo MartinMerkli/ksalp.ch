@@ -15,9 +15,9 @@
             </div>
             <br>
             <div>
-                <label for="konto-registrieren_class">Klasse (oder '-'): </label>
+                <label for="konto-registrieren_class">Klasse und Kursbezeichnungen (siehe FAQ unten; mit Leerzeichen trennen): </label>
                 <br>
-                <input type="text" id="konto-registrieren_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text">
+                <input type="text" id="konto-registrieren_class" name="class" required placeholder="G19a SBC-5B" minlength="0" maxlength="64" class="input-text">
             </div>
             <br>
             <div>
@@ -70,7 +70,10 @@
     </form>
     <h3 class="center">FAQ</h3>
     <div>
+        <h4>Was sind Kursbezeichnungen?</h4>
+        <p>Kursbezeichnungen sind (klassenübergreifende) Gruppen von Schüler*innen. Sie sind beim <a href="https://www.lu.ch/downloads/ksalpenquai/stundenplan/2324-1/">Stundenplan</a> unten bei den Anmerkungen in der Zeile <i>Text</i> vermerkt. Bitte geben Sie nur die ersten beiden Teile ein; so wird aus <i>SBC-5D-hal,hmr</i> nur <i>SBC-5D</i>. Die Kursbezeichnungen ändern sich jedes Schuljahr.</p>
+        <br>
         <h4>Wie wird die Stärke des Passwortes berechnet?</h4>
-        <p>Die Schätzung wird mit dem Algorithmus <i>zxcvbn</i> erstellt. <a href="https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_wheeler.pdf" class="footer-link">Hier</a> wird die Funktionsweise erklärt. <small>[Artikel ist nur auf Englisch verfügbar]</small></p>
+        <p>Die Schätzung wird mit dem Algorithmus <i>zxcvbn</i> erstellt. <a href="https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_wheeler.pdf" target="_blank" class="footer-link">Hier</a> wird die Funktionsweise erklärt.</p>
     </div>
 {% endblock %}

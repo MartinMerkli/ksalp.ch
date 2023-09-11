@@ -131,13 +131,13 @@
     </div>
     <div>
         <h3 class="center" id="klasse">Klasse</h3>
-        <p>Sie sind in der Klasse {{ class_ }}.</p>
+        <p>Sie sind in der Klasse <i>{{ class_ }}</i>.</p>
         <form action="/konto/einstellungen/class" method="post">
             <fieldset class="konto-registrieren_fieldset">
                 <div>
-                    <label for="konto-einstellungen_class">Klasse (oder '-'): </label>
+                    <label for="konto-einstellungen_class">Klasse und Kursbezeichnungen (mit Leerzeichen trennen): </label>
                     <br>
-                    <input type="text" id="konto-einstellungen_class" name="class" required placeholder="G21m" minlength="1" maxlength="4" class="input-text" value="{{ class_ }}">
+                    <input type="text" id="konto-einstellungen_class" name="class" required placeholder="G19a SBC-5B" minlength="0" maxlength="64" class="input-text" value="{{ class_ }}">
                 </div>
                 <br>
                 <div>

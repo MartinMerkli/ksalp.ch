@@ -692,7 +692,7 @@ def route_konto_registrieren2():
         'mail': ['E-Mail', 8, 64],
         'password': ['Passwort', 8, 128],
         'password-repeat': ['Passwort wiederholen', 8, 128],
-        'class': ['Klasse', 1, 4],
+        'class': ['Klasse', 0, 64],
         'grade': ['Klassenstufe', 0, 65536]
     }
     for _, (key, val) in enumerate(required.items()):
@@ -726,6 +726,10 @@ def route_konto_registrieren2():
         return error(409, 'custom', ['Konto existiert', f"Ein Konto mit der E-Mail Adresse '{form['mail']}' existiert "
                                                         f"schon. Klicken Sie in der Navigationsleiste auf 'Anmelden', "
                                                         f"um sich anzumelden."])
+    allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ '
+    for char in form['class']:
+        if char not in allowed:
+            return 'error: request contains characters that are not allowed', 400
     mail_id = rand_base64(9)
     code = str(randint(1000000, 9999999))
     salt = rand_salt()
@@ -938,8 +942,12 @@ def route_konto_einstellungen_(path: str):
             if 'class' not in form:
                 return error(400, 'custom', ['Fehlendes Eingabefeld', f"Das Eingabefeld 'Klasse' wurde "
                                                                       f"nicht an den Server übermittelt."])
-            if not(0 < len(form['class']) < 5):
+            if not(len(form['class']) < 64):
                 return error(422, 'form-missing')
+            allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ '
+            for char in form['class']:
+                if char not in allowed:
+                    return 'error: request contains characters that are not allowed', 400
             query_db('UPDATE account SET class=? WHERE id=?', (form['class'], context['id']))
         case 'grade':
             form = dict(request.form)
@@ -977,7 +985,12 @@ def route_dokumente_documents():
     indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created',
                'extension', 'size']
     if class_:
-        result = query_db(f"SELECT {', '.join(indices)} FROM document WHERE class=?", (class_,))  # noqa
+        allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
+        for char in class_:
+            if char not in allowed:
+                return 'error: request contains characters that are not allowed', 400
+        query = ' OR '.join([f"class='{part}'" for part in class_.split('$')])
+        result = query_db(f"SELECT {', '.join(indices)} FROM document WHERE {query}")  # noqa
     elif grade_:
         result = query_db(f"SELECT {', '.join(indices)} FROM document WHERE grade=?", (grade_,))  # noqa
     else:
@@ -1192,7 +1205,7 @@ def route_dokumente_klasse():
     if not context['signed_in']:
         return error(401, 'account')
     result = query_db('SELECT class FROM account WHERE id=?', (context['id'],), True)
-    return redirect(f"/dokumente?klasse={result[0]}")
+    return redirect(f"/dokumente?klasse={result[0].replace(' ', '$')}")
 
 
 @app.route('/dokumente/klassenstufe', methods=['GET'])
@@ -1230,7 +1243,7 @@ def route_lernsets_klasse():
     if not context['signed_in']:
         return error(401, 'account')
     result = query_db('SELECT class FROM account WHERE id=?', (context['id'],), True)
-    return redirect(f"/lernsets?klasse={result[0]}")
+    return redirect(f"/lernsets?klasse={result[0]}".replace(' ', '$'))
 
 
 @app.route('/lernsets/klassenstufe', methods=['GET'])
@@ -1253,7 +1266,12 @@ def route_lernsets_sets():
     sets = sets_.split('$')
     indices = ['id', 'title', 'subject', 'description', 'class', 'grade', 'language', 'owner', 'edited', 'created']
     if class_:
-        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE class=?", (class_,))  # noqa
+        allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$'
+        for char in class_:
+            if char not in allowed:
+                return 'error: request contains characters that are not allowed', 400
+        query = ' OR '.join([f"class='{part}'" for part in class_.split('$')])
+        result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE {query}")  # noqa
     elif grade_:
         result1 = query_db(f"SELECT {', '.join(indices)} FROM learn_set WHERE grade=?", (grade_,))  # noqa
     elif sets_:

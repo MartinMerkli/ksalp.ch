@@ -41,6 +41,7 @@ FILE_TYPES = {
     'scripts/lernsets.js': 'text/javascript',
     'scripts/lernsets_lernen.js': 'text/javascript',
     'scripts/admin_sql.js': 'text/javascript',
+    'logo.svg': 'image/svg+xml',
 }
 FILE_TYPES_ICONS = {
     'android-chrome-192x192.png': 'image/png',

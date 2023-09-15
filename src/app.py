@@ -20,7 +20,7 @@ from magic import from_file as type_from_file
 from os import environ, urandom
 from os.path import exists, getsize, join
 from random import randint, uniform
-from resources.src import EXTENSIONS as _EXTENSIONS, FILE_TYPES as _FILE_TYPES, FILE_TYPES_ICONS as _FILE_TYPES_ICONS
+from resources.src import EXTENSIONS as _EXTENSIONS, FILE_TYPES as _FILE_TYPES
 from resources.src import GRADES as _GRADES, LANGUAGES as _LANGUAGES, THEMES as _THEMES, SEARCH_ENGINES as _SEARCH_ENGINES
 from resources.src import SIZE_UNITS as _SIZE_UNITS, SUBJECTS as _SUBJECTS
 from smtplib import SMTP
@@ -584,16 +584,6 @@ def route_stylesheets(theme):
     template = template.replace('§scale§', str(scale))
     resp = make_response(template, 200)
     resp.mimetype = 'text/css'
-    return resp
-
-
-@app.route('/icons/<path:file>', methods=['GET'])
-def route_icons(file):
-    resp = send_from_directory(join(app.root_path, 'resources/icons'), file)
-    if file in _FILE_TYPES_ICONS:
-        resp.mimetype = _FILE_TYPES_ICONS[file]
-    else:
-        resp.mimetype = type_from_file(join(app.root_path, 'resources/icons', file), mime=True)
     return resp
 
 

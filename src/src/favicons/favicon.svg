@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
    width="256mm"
@@ -7,41 +6,12 @@
    viewBox="0 0 256 256"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="icon.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview7"
-     pagecolor="#ffffff"
-     bordercolor="#111111"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="1"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     showgrid="false"
-     inkscape:zoom="0.36509399"
-     inkscape:cx="299.92276"
-     inkscape:cy="-1.3695103"
-     inkscape:window-width="1920"
-     inkscape:window-height="1163"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="g444">
-    <inkscape:grid
-       type="xygrid"
-       id="grid6606" />
-  </sodipodi:namedview>
   <defs
      id="defs2">
     <linearGradient
-       inkscape:collect="always"
        id="linearGradient6741">
       <stop
          style="stop-color:#00ffff;stop-opacity:1;"
@@ -57,7 +27,6 @@
          id="stop6739" />
     </linearGradient>
     <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient6741"
        id="linearGradient6743"
        x1="73.100365"
@@ -69,8 +38,6 @@
        gradientTransform="matrix(1.1066666,0,0,1.1066666,-19.081865,-20.191275)" />
   </defs>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1">
     <g
        id="g444"

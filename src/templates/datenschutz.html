@@ -1,0 +1,76 @@
+{% extends '_base.html' %}
+
+{% block title %}Datenschutz{% endblock %}
+
+{% block main %}
+    <h2 class="center">Datenschutz</h2>
+    <h3 id="_index">Inhaltsverzeichnis</h3>
+    <ul>
+        <li><a href="#_index">Inhaltsverzeichnis</a></li>
+        <li><a href="#_accept">Zustimmung</a></li>
+        <li><a href="#_person">Verantwortliche Person</a></li>
+        <li><a href="#_rights">Ihre Rechte</a></li>
+        <li><a href="#_encryption">Verschlüsselung</a></li>
+        <li><a href="#_logfiles">Logdateien</a></li>
+        <li><a href="#_blocklist">Sperrlisten</a></li>
+        <li><a href="#_cookies">Cookies und ähnliche Technologien</a></li>
+        <li><a href="#_contact">Kontaktaufnahme</a></li>
+        <li><a href="#_account">Kontodaten</a></li>
+        <li><a href="#_sets">Lernsets</a></li>
+        <li><a href="#_changes">Änderungen</a></li>
+    </ul>
+    <h3 id="_accept">Zustimmung</h3>
+    <p>Mit der Benutzung dieser Webseite stimmen Sie diesen Datenschutzbestimmungen zu. Eine Ablehnung ist nur möglich, indem Sie auf die Benutzung dieser Webseite verzichten.</p>
+    <p>Falls Sie von Gesetzes wegen nicht ihre Zustimmung erteilen können, müssen Sie die Zustimmung bei Ihrer gesetzlichen Vertretung einholen.</p>
+    <h3 id="_person">Verantwortliche Person</h3>
+    <p>Die für den Datenschutz verantwortliche Person gemäss <a href="https://www.fedlex.admin.ch/eli/oc/2022/491/de#art_19">Art. 19 Abs. 2a DSG</a> ist:</p>
+    <p><i>{{ imprint_name }}</i></p>
+    <p><i>{{ imprint_address }}</i></p>
+    <p><i>{{ imprint_city }}</i></p>
+    <p><i>{{ smtp_address }}</i></p>
+    <h3 id="_rights">Ihre Rechte</h3>
+    <p>Sie haben das Recht gemäss <a href="https://www.fedlex.admin.ch/eli/oc/2022/491/de#art_25">Art. 25 DSG</a> auf Auskunft ob und in welcher Form Personendaten über Sie bearbeitet werden. Ausserdem haben Sie das Recht, die bearbeiten Personendaten als solche einzusehen.</p>
+    <p>Weitere Rechte wie das Recht auf Datenlöschung, Datenberichtigung, Einschränkung der Datenverarbeitung und das Recht auf Datenübertragung sind im gesetzlich vorgeschriebenen Rahmen vorhanden.</p>
+    <h3 id="_encryption">Verschlüsselung</h3>
+    <p>Aus Sicherheitsgründen und zum Schutz der Übertragung personenbezogener Daten und anderer vertraulicher Inhalte setzen wir auf unserer Website eine SSL- beziehungsweise eine TLS-Verschlüsselung ein. Dies können Sie in Ihrem Webbrowser an der Zeichenfolge "https://" und dem Schloss-Symbol erkennen.</p>
+    <h3 id="_logfiles">Logdateien</h3>
+    <p>Folgende Daten werden in den Logdateien gespeichert:</p>
+    <ul>
+        <li><p>der <a href="https://csrc.nist.gov/pubs/fips/202/final">SHA3_256-Wert</a> Ihrer IP-Adresse</p></li>
+        <li><p>Datum und Uhrzeit Ihrer Anfrage</p></li>
+        <li><p>der von Ihnen zu diesem Zeitpunkt benutzten User-Agent</p></li>
+        <li><p>ob Sie angemeldet sind</p></li>
+        <li><p>die von Ihnen aufgerufene URl</p></li>
+    </ul>
+    <p>Diese Daten sind technisch notwendig für die Verhinderung missbräuchlicher Nutzung und der Verbesserung unseres Angebots.</p>
+    <p>Falls Ihre Anfrage missbräuchlich ist, werden diese Daten mit der <i><a href="https://www.python.org/psf-landing/">Python Software Foundation</a></i> und mit <i><a href="https://github.com/about">GitHub Inc.</a></i> geteilt, um andere Website-Betreiber gegen missbräuchliche Nutzung zu schützen. Unsere Abwehrsysteme werden mit missbräuchlichen Anfragen trainiert.</p>
+    <p>Falls Ihre Anfrage nicht missbräuchlich ist, werden keine Daten an Dritte weitergegeben.</p>
+    <h3 id="_blocklist">Sperrlisten</h3>
+    <p>Um die missbräuchliche Nutzung unserer Dienste zu verhindern, ist es möglich, dass Ihre IP-Adresse auf eine Sperrliste geschrieben wird.</p>
+    <p>Falls Ihr Internetzugang öffentlich ist und/oder mit weiteren Personen geteilt wird, ist es möglich, dass Ihre IP-Adresse auf eine Ausnahmeliste zusammen mit einer Beschreibung oder einer Kontaktmöglichkeit des Betreibers des jeweiligen Internetzuganges geschrieben wird.</p>
+    <h3 id="_cookies">Cookies und ähnliche Technologien</h3>
+    <p>Wir verwenden <a href="https://datatracker.ietf.org/doc/html/rfc6265">Cookies</a>, um Sie zu identifizieren, falls Sie sich angemeldet haben und/oder um (potenzielle) Angreifer zu blockieren und unsere Dienste schneller verfügbar zu machen.</p>
+    <p>Da ausschliesslich essenzielle Cookies benutzt werden, können Sie nicht gegen den Einsatz dieser Technologie widersprechen.</p>
+    <h3 id="_contact">Kontaktaufnahme</h3>
+    <p>Falls Sie uns kontaktieren, verwenden wir die von Ihnen zur Verfügung gestellten Daten, um Ihre Frage(n) zu beantworten. Ohne diese Daten könnten wir Ihre Frage(n) nicht beantworten. Ihr Name oder Ihre E-Mail-Adresse werden gespeichert, um Nachrichten ohne seriösen Inhalt auszublenden.</p>
+    <p><i><a href="https://www.zoho.com/aboutus.html">Zoho Corporation Pvt. Ltd.</a></i> erbringt für uns die Dienste zum Bereitstellen und zur Verwaltung unserer E-Mail-Postfächer. Alle Daten, die im Rahmen der Kommunikation über unsere E-Mail-Postfächer verarbeitet werden, werden auf den Servern dieses Drittanbieters verarbeitet. <a href="https://www.zoho.com/privacy.html">Hier</a> können Sie die Datenschutzbestimmungen von <i>Zoho Corporation Pvt. Ltd.</i> vorfinden.</p>
+    <h3 id="_account">Kontodaten</h3>
+    <p>Dieser Abschnitt betrifft Sie nur, wenn Sie ein Konto auf dieser Webseite besitzen.</p>
+    <p>Wir speichern folgende personenbezogenen Daten von Ihnen:</p>
+    <ul>
+        <li><p>Ihr Name</p></li>
+        <li><p>Ihre E-Mail-Adresse</p></li>
+        <li><p>der <a href="https://builtin.com/cybersecurity/what-is-hashing">Hashwert</a> Ihres Passworts</p></li>
+        <li><p>Datum und Uhrzeit der Erstellung Ihres Kontos</p></li>
+        <li><p>Einstellungen</p></li>
+    </ul>
+    <p>Diese Daten sind notwendig für die Bereitstellung unserer Dienste.</p>
+    <p>Es werden standardmässig keine Daten an Dritte weitergegeben. Falls Sie Inhalte wie Dokumente, Lernsets, Kommentare oder ähnliches auf unserer Webseite veröffentlichen, wird Ihr Name sowie das Datum und die Uhrzeit der Veröffentlichung öffentlich sichtbar sein.</p>
+    <h3 id="_sets">Lernsets</h3>
+    <p>Dieser Abschnitt betrifft Sie nur, wenn Sie die Lernsets-Funktion unserer Webseite nutzen und angemeldet sind.</p>
+    <p>Um unsere Dienste bereitstellen zu können, werden Statistiken über Ihre Antworten zu den Lernsets erstellt. Diese beinhalten die Frage, Ihre Kontonummer sowie die Anzahl richtiger und falscher Antworten.</p>
+    <p>Es werden keine Daten an Dritte weitergegeben.</p>
+    <h3 id="_changes">Änderungen</h3>
+    <p>Wir behalten uns das Recht vor, diese Datenschutzbestimmungen jederzeit zu ändern.</p>
+    <p>Falls Sie Benachrichtigungen per E-Mail zu lassen, werden wir Sie über Änderungen informieren. Dies können Sie in den <a href="/konto/einstellungen">Einstellungen</a> anpassen.</p>
+{% endblock %}

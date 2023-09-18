@@ -1712,6 +1712,21 @@ def route_admin_sql_tabellen():
 
 
 ########################################################################################################################
+# LEGAL
+########################################################################################################################
+
+
+@app.route('/datenschutz', methods=['GET'])
+def route_datenschutz():
+    context = create_context(session)
+    if is_banned(0, context['banned']):
+        return error(403, 'banned', [0])
+    return render_template('datenschutz.html', imprint_name=environ['IMPRINT_NAME'], imprint_address=environ['IMPRINT_ADDRESS'],
+                           imprint_city=environ['IMPRINT_CITY'], smtp_address=environ['SMTP_ADDRESS'])
+
+
+
+########################################################################################################################
 # MAIN
 ########################################################################################################################
 
